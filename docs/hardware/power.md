@@ -1,0 +1,11 @@
+# Power and ignition strategy
+
+Rev-A targets a 12 V passenger vehicle. **ASSUMPTION for design exploration:** 9-16 V operational bench envelope, 12 V nominal, with 13.8/14.4 V engine-running test points. Actual target-vehicle profiles and OEM electrical requirements must define acceptance limits. Testing below the display's 7 V specified minimum concerns safe reset/recovery; continuous operation through a 3 V crank is not promised.
+
+Use LM74900-Q1 with common-drain external MOSFETs, input fuse, raw-node bidirectional TVS, coordinated UV/OV cutoff, short-circuit/circuit-breaker sensing, damped EMI filtering, and controlled display power. [TI datasheet Rev C](https://www.ti.com/lit/ds/symlink/lm74900-q1.pdf) supports the chosen topology. Do not copy the 50 W application example's 37 V cutoff into a 36 V display design. [Initial calculations](../../hardware/calculations/rev-a-calculations.md) are provisional and list missing measurements.
+
+ACC is an optional separate harness lead; no OBD pin is presumed ignition-switched. Mode A senses protected ACC and follows `ACC falls -> notify -> stop new logging -> flush/close -> acknowledge -> blank -> main power off`. A hardware deadline removes power if firmware stalls. Supervisor wake circuitry must remain available with the display off, and its consumption must be measured. Mode B is a labeled demonstration installation with manual power switch and timeout; battery-voltage heuristics alone do not reliably determine ignition.
+
+Measure shutdown draw at the battery connector, including TVS leakage, all dividers, regulators, wake controller, CAN/K bias, bus isolation, LEDs and USB backfeed. A controller datasheet's microamp shutdown value is not the product drain. Disconnect/remove the display's optional lithium battery unless a separate qualified battery design is approved. Do not connect vehicle power simultaneously with development USB until backfeed paths are understood.
+
+Load-dump handling is input clamp plus disconnect; MOSFET off-state stress and clamp energy still need analysis. No ISO 7637/16750 compliance is claimed. Fuse and cable selection remain blocked on peak current/inrush and installation harness rating. Use current-limited bench testing before any vehicle-powered experiment. Transient execution and acceptance belong in `docs/testing/automotive-transient-test-plan.md`.
