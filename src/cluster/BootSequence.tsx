@@ -1,19 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useVehicleStore } from '@/state/vehicleStore'
 import { SevenSegmentGroup } from './widgets/SevenSegment'
-import { WarningLamp } from './widgets/WarningLamp'
+import { WarningLampStrip } from './widgets/WarningLampStrip'
 import { RpmBar } from './widgets/RpmBar'
 import './BootSequence.css'
-
-const LAMPS = [
-  { label: 'CHECK ENGINE', color: 'var(--cl-warning-amber)' },
-  { label: 'OIL', color: 'var(--cl-critical-red)' },
-  { label: 'BATTERY', color: 'var(--cl-warning-amber)' },
-  { label: 'TEMP', color: 'var(--cl-critical-red)' },
-  { label: 'BRAKE', color: 'var(--cl-critical-red)' },
-  { label: 'ABS', color: 'var(--cl-warning-amber)' },
-  { label: 'SEAT BELT', color: 'var(--cl-warning-amber)' },
-]
 
 function connState(v: string): 'OK' | 'PENDING' | 'FAULT' {
   if (v === 'CONNECTED' || v === 'FIX') return 'OK'
@@ -88,9 +78,7 @@ export function BootSequence() {
         <>
           <div className="rd-boot-sub">SYSTEM CHECK</div>
           <div className="rd-boot-lamprow">
-            {LAMPS.map((l) => (
-              <WarningLamp key={l.label} label={l.label} lit color={l.color} />
-            ))}
+            <WarningLampStrip forceAllLit />
           </div>
         </>
       )}
