@@ -7,7 +7,7 @@ import type {
   VehicleProfile,
   WarningThresholds,
 } from '@/types/vehicle'
-import { VEHICLE_PRESETS } from '@/types/vehicle'
+import { VEHICLE_PRESETS, DEFAULT_LAYOUT_FOR_VEHICLE } from '@/types/vehicle'
 
 interface SettingsState {
   vehicleProfile: VehicleProfile
@@ -26,11 +26,16 @@ interface SettingsState {
 
 const defaultDisplay: DisplaySettings = {
   theme: 'JDM_PHOSPHOR',
+  clusterLayout: 'JDM_DIGITAL_86',
+  primaryColor: 'PHOSPHOR_GREEN',
   brightness: 85,
   autoBrightness: false,
+  ambientLight: 60,
+  nightMode: false,
   speedSourceMode: 'AUTO',
   mediaTickerEnabled: true,
   startupAnimationEnabled: true,
+  auxSlots: ['BOOST', 'OIL_TEMP', 'BATTERY', 'IAT'],
 }
 
 const defaultSound: SoundSettings = {
@@ -63,7 +68,12 @@ export const useSettingsStore = create<SettingsState>()(
       setVehicleProfile: (profile) => set({ vehicleProfile: profile }),
       setVehiclePresetById: (id) => {
         const preset = VEHICLE_PRESETS.find((p) => p.id === id)
-        if (preset) set({ vehicleProfile: preset })
+        if (!preset) return
+        const layout = DEFAULT_LAYOUT_FOR_VEHICLE[id]
+        set((s) => ({
+          vehicleProfile: preset,
+          display: layout ? { ...s.display, clusterLayout: layout } : s.display,
+        }))
       },
       setTheme: (theme) => set((s) => ({ display: { ...s.display, theme } })),
       updateDisplay: (patch) => set((s) => ({ display: { ...s.display, ...patch } })),
@@ -80,6 +90,16 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'retrodrive-settings',
+      version: 2,
+      migrate: (persisted) => {
+        const p = (persisted ?? {}) as Partial<SettingsState>
+        return {
+          vehicleProfile: p.vehicleProfile ?? VEHICLE_PRESETS[0],
+          display: { ...defaultDisplay, ...(p.display ?? {}) },
+          sound: { ...defaultSound, ...(p.sound ?? {}) },
+          warnings: { ...defaultWarnings, ...(p.warnings ?? {}) },
+        }
+      },
       partialize: (s) => ({
         vehicleProfile: s.vehicleProfile,
         display: s.display,

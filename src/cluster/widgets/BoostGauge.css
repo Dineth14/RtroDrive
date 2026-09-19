@@ -1,0 +1,62 @@
+.rd-boost {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.rd-boost-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.rd-boost-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--cl-muted-text);
+}
+.rd-boost-peak {
+  font-size: 11px;
+  color: var(--cl-primary-dim);
+  letter-spacing: 1px;
+}
+.rd-boost-value {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.rd-boost-track {
+  height: 14px;
+  width: 100%;
+  background: var(--cl-panel-alt);
+  border: 1px solid var(--cl-grid-line);
+  position: relative;
+  display: flex;
+  padding: 2px;
+  gap: 1px;
+}
+.rd-boost-seg {
+  flex: 1;
+  background: var(--cl-grid-line);
+}
+.rd-boost-zero-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--cl-muted-text);
+  opacity: 0.8;
+}
+.rd-boost-peak-mark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--cl-amber);
+}
+.rd-boost-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--cl-muted-text);
+  letter-spacing: 0.5px;
+}

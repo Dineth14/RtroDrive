@@ -4,8 +4,11 @@ import type {
   ActiveWarning,
   ConnectionStates,
   EngineState,
+  GpsPoint,
   HardwareState,
   IgnitionState,
+  NavInstruction,
+  ParkedLocation,
   TelemetrySnapshot,
   TripSummary,
 } from '@/types/telemetry'
@@ -44,6 +47,16 @@ export const INITIAL_TELEMETRY: TelemetrySnapshot = {
   maxSpeedKph: makeChannel(0, 'DERIVED'),
   maxRpm: makeChannel(0, 'DERIVED'),
   maxCoolantC: makeChannel(0, 'DERIVED'),
+
+  mapAbsoluteKpa: makeChannel(101, 'OBD'),
+  barometricPressureKpa: makeChannel(101, 'OBD'),
+  boostKpa: makeChannel(0, 'DERIVED'),
+  boostBar: makeChannel(0, 'DERIVED'),
+  boostPsi: makeChannel(0, 'DERIVED'),
+  maxBoostBar: makeChannel(0, 'DERIVED'),
+
+  altitudeM: makeChannel(12, 'GPS', false),
+  gearPosition: makeChannel('P', 'DERIVED'),
 }
 
 const initialHardware: HardwareState = {
@@ -98,6 +111,10 @@ interface VehicleState {
   speedSourceActive: 'OBD' | 'GPS'
   activeClusterScreen: ClusterScreenId
   drivingLockout: boolean
+  gpsBreadcrumb: GpsPoint[]
+  parkedLocation: ParkedLocation | null
+  navMode: 'STANDALONE' | 'PHONE_ASSISTED'
+  navInstruction: NavInstruction | null
 
   setIgnition: (state: IgnitionState) => void
   setEngine: (state: EngineState) => void
@@ -119,10 +136,16 @@ interface VehicleState {
   resetTrip: () => void
   setActiveClusterScreen: (screen: ClusterScreenId) => void
   setDrivingLockout: (v: boolean) => void
+  pushBreadcrumb: (p: GpsPoint) => void
+  clearBreadcrumb: () => void
+  setNavMode: (mode: 'STANDALONE' | 'PHONE_ASSISTED') => void
+  setNavInstruction: (instr: NavInstruction | null) => void
 }
 
 export type ClusterScreenId =
   | 'DASHBOARD'
+  | 'PERFORMANCE'
+  | 'GPS'
   | 'DIAGNOSTICS'
   | 'HEALTH'
   | 'TRIP'
@@ -132,6 +155,7 @@ export type ClusterScreenId =
 interface PersistedVehicleShape {
   trips: TripSummary[]
   telemetry: { odometerKm: TelemetrySnapshot['odometerKm'] }
+  parkedLocation: ParkedLocation | null
 }
 
 export const useVehicleStore = create<VehicleState>()(
@@ -166,8 +190,21 @@ export const useVehicleStore = create<VehicleState>()(
       speedSourceActive: 'OBD',
       activeClusterScreen: 'DASHBOARD',
       drivingLockout: false,
+      gpsBreadcrumb: [],
+      parkedLocation: null,
+      navMode: 'STANDALONE',
+      navInstruction: null,
 
-      setIgnition: (state) => set({ ignition: state }),
+      setIgnition: (state) =>
+        set((s) => {
+          if (state === 'OFF' && s.ignition !== 'OFF' && s.telemetry.latitude.available) {
+            return {
+              ignition: state,
+              parkedLocation: { lat: s.telemetry.latitude.value, lon: s.telemetry.longitude.value, timestamp: Date.now() },
+            }
+          }
+          return { ignition: state }
+        }),
       setEngine: (state) => set({ engine: state }),
       setTelemetry: (patch) => set((s) => ({ telemetry: { ...s.telemetry, ...patch } })),
       setHardware: (patch) => set((s) => ({ hardware: { ...s.hardware, ...patch } })),
@@ -241,16 +278,27 @@ export const useVehicleStore = create<VehicleState>()(
             maxSpeedKph: makeChannel(0, 'DERIVED'),
             maxRpm: makeChannel(0, 'DERIVED'),
             maxCoolantC: makeChannel(0, 'DERIVED'),
+            maxBoostBar: makeChannel(0, 'DERIVED'),
           },
         })),
       setActiveClusterScreen: (screen) => set({ activeClusterScreen: screen }),
       setDrivingLockout: (v) => set({ drivingLockout: v }),
+      pushBreadcrumb: (p) =>
+        set((s) => {
+          const next = [...s.gpsBreadcrumb, p]
+          if (next.length > 400) next.shift()
+          return { gpsBreadcrumb: next }
+        }),
+      clearBreadcrumb: () => set({ gpsBreadcrumb: [] }),
+      setNavMode: (mode) => set({ navMode: mode }),
+      setNavInstruction: (instr) => set({ navInstruction: instr }),
     }),
     {
       name: 'retrodrive-vehicle',
       partialize: (s) => ({
         trips: s.trips,
         telemetry: { odometerKm: s.telemetry.odometerKm },
+        parkedLocation: s.parkedLocation,
       }),
       merge: (persistedState, current) => {
         const persisted = persistedState as PersistedVehicleShape | undefined
@@ -262,6 +310,7 @@ export const useVehicleStore = create<VehicleState>()(
             ...current.telemetry,
             odometerKm: persisted.telemetry?.odometerKm ?? current.telemetry.odometerKm,
           },
+          parkedLocation: persisted.parkedLocation ?? current.parkedLocation,
         }
       },
     }

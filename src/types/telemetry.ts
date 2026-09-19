@@ -43,6 +43,38 @@ export interface TelemetrySnapshot {
   maxSpeedKph: TelemetryChannel<number>
   maxRpm: TelemetryChannel<number>
   maxCoolantC: TelemetryChannel<number>
+
+  mapAbsoluteKpa: TelemetryChannel<number>
+  barometricPressureKpa: TelemetryChannel<number>
+  boostKpa: TelemetryChannel<number>
+  boostBar: TelemetryChannel<number>
+  boostPsi: TelemetryChannel<number>
+  maxBoostBar: TelemetryChannel<number>
+
+  altitudeM: TelemetryChannel<number>
+  gearPosition: TelemetryChannel<string>
+}
+
+export interface GpsPoint {
+  lat: number
+  lon: number
+  t: number
+}
+
+export interface ParkedLocation {
+  lat: number
+  lon: number
+  timestamp: number
+}
+
+export type NavInstructionKind = 'STRAIGHT' | 'TURN_LEFT' | 'TURN_RIGHT' | 'ROUNDABOUT' | 'DESTINATION'
+
+export interface NavInstruction {
+  kind: NavInstructionKind
+  distanceM: number
+  roundaboutExit?: number
+  destinationEtaMin?: number
+  destinationDistanceKm?: number
 }
 
 export type IgnitionState = 'OFF' | 'ACC' | 'ON' | 'START'

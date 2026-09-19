@@ -1,4 +1,5 @@
 import { useVehicleStore } from '@/state/vehicleStore'
+import { useSettingsStore } from '@/state/settingsStore'
 import { useMediaStore } from '@/state/mediaStore'
 import { makeChannel } from '@/types/telemetry'
 import type { TelemetrySnapshot } from '@/types/telemetry'
@@ -14,11 +15,16 @@ type OverridableChannel =
   | 'longFuelTrimPercent'
   | 'engineLoadPercent'
   | 'oilPressureBar'
+  | 'boostBar'
+  | 'mapAbsoluteKpa'
+  | 'barometricPressureKpa'
 
 type OverrideMap = Partial<Record<OverridableChannel, number>>
 
 const overrides: OverrideMap = {}
 const forcedUnavailable = new Set<OverridableChannel>()
+let boostSpool = 0
+let breadcrumbTimer = 0
 
 export function setForcedUnavailable(channel: OverridableChannel, unavailable: boolean) {
   if (unavailable) forcedUnavailable.add(channel)
@@ -192,6 +198,45 @@ function tick(dtSeconds: number) {
   next.mafGps = makeChannel(approach(t.mafGps.value, mafTarget, 15 * dtSeconds), 'OBD', running)
   next.fuelPressureBar = makeChannel(running ? 3.1 + noise(0.08) : 0, 'OBD', running)
 
+  // ---- Boost / turbo (vacuum + positive boost off one MAP model) ----
+  const vehicle = useSettingsStore.getState().vehicleProfile
+  const isTurbo = vehicle.isTurbocharged
+  const baro = overrides.barometricPressureKpa ?? approach(t.barometricPressureKpa.value, 101.3, 2 * dtSeconds)
+
+  let boostKpa: number
+  if (overrides.boostBar !== undefined) {
+    boostSpool = isTurbo ? clamp(overrides.boostBar / Math.max(0.1, vehicle.maxBoostBar), 0, 1.3) : 0
+    boostKpa = approach(t.boostKpa.value, overrides.boostBar * 100, 400 * dtSeconds)
+  } else if (overrides.mapAbsoluteKpa !== undefined) {
+    boostKpa = approach(t.boostKpa.value, overrides.mapAbsoluteKpa - baro, 200 * dtSeconds)
+  } else {
+    const throttleFrac = throttle / 100
+    const rpmFrac = clamp(rpm / 7000, 0, 1)
+    const vacuumTargetKpa = clamp(58 - throttleFrac * 58, 0, 58)
+    const spoolTarget = running && isTurbo ? clamp(throttleFrac * clamp(rpmFrac * 1.4, 0, 1), 0, 1) : 0
+    const spoolRateUp = 0.5 + rpmFrac * 3.2
+    const spoolRateDown = 2.8
+    boostSpool = approach(boostSpool, spoolTarget, (spoolTarget > boostSpool ? spoolRateUp : spoolRateDown) * dtSeconds)
+    const maxBoostKpa = vehicle.maxBoostBar * 100
+    const boostAboveAtmTarget = isTurbo ? boostSpool * maxBoostKpa : 0
+    const boostKpaTarget = boostAboveAtmTarget > 0.5 ? boostAboveAtmTarget : -vacuumTargetKpa * (1 - boostSpool)
+    boostKpa = approach(t.boostKpa.value, boostKpaTarget, 55 * dtSeconds)
+  }
+  const boostAvailable = running && isTurbo
+  next.barometricPressureKpa = makeChannel(baro, 'DERIVED', true)
+  next.mapAbsoluteKpa = makeChannel(baro + boostKpa, 'DERIVED', running)
+  next.boostKpa = makeChannel(boostKpa, 'DERIVED', boostAvailable)
+  next.boostBar = makeChannel(boostKpa / 100, 'DERIVED', boostAvailable)
+  next.boostPsi = makeChannel(boostKpa * 0.145038, 'DERIVED', boostAvailable)
+  next.maxBoostBar = makeChannel(Math.max(t.maxBoostBar.value, boostKpa / 100), 'DERIVED')
+
+  // ---- Gear (cosmetic, speed-derived) ----
+  next.gearPosition = makeChannel(
+    !running ? (ignition === 'OFF' ? 'P' : 'N') : speed < 2 ? 'N' : String(Math.min(6, Math.max(1, Math.ceil(speed / 28)))),
+    'DERIVED',
+    true
+  )
+
   // ---- GPS ----
   const gps = store.connections.gps
   const gpsAvailable = gps === 'FIX'
@@ -208,6 +253,15 @@ function tick(dtSeconds: number) {
     next.latitude = t.latitude
     next.longitude = t.longitude
     next.headingDeg = t.headingDeg
+  }
+  next.altitudeM = makeChannel(gpsAvailable ? t.altitudeM.value + noise(0.2) : t.altitudeM.value, 'GPS', gpsAvailable)
+
+  if (gpsAvailable && ignition !== 'OFF') {
+    breadcrumbTimer += dtSeconds
+    if (breadcrumbTimer >= 2) {
+      breadcrumbTimer = 0
+      store.pushBreadcrumb({ lat: next.latitude.value, lon: next.longitude.value, t: Date.now() })
+    }
   }
 
   // ---- Speed source resolution ----
@@ -258,4 +312,9 @@ export function stopTelemetryEngine() {
 export function resetAutoDrive() {
   autoTargetSpeed = 0
   autoTargetTimer = 0
+  boostSpool = 0
+}
+
+export function resetBoostPeak() {
+  useVehicleStore.getState().setTelemetry({ maxBoostBar: makeChannel(0, 'DERIVED') })
 }

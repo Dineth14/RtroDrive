@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { MediaVisualStyle, Track } from '@/types/media'
+import type { MediaVisualStyle, Track, VisualizerMode } from '@/types/media'
 
 export const TRACKS: Track[] = [
   { id: 't1', title: 'MIDNIGHT EXPRESS', artist: 'Neon Avenue', durationSeconds: 214 },
@@ -9,12 +9,19 @@ export const TRACKS: Track[] = [
   { id: 't5', title: 'LAST TOLL BOOTH', artist: 'Vector Sunset', durationSeconds: 246 },
 ]
 
+export const SPECTRUM_BAND_LABELS = ['63', '125', '250', '500', '1K', '2K', '4K', '8K', '16K', '20K', '22K', '24K']
+const BAND_COUNT = SPECTRUM_BAND_LABELS.length
+
+let bandTargets = new Array(BAND_COUNT).fill(0.1)
+let bandRetarget = new Array(BAND_COUNT).fill(0)
+
 interface MediaStoreState {
   isPlaying: boolean
   currentTrackId: string
   elapsedSeconds: number
   bluetoothConnected: boolean
   visualStyle: MediaVisualStyle
+  visualizerMode: VisualizerMode
   levels: number[]
 
   play: () => void
@@ -24,6 +31,7 @@ interface MediaStoreState {
   previous: () => void
   tick: (dtSeconds: number) => void
   setVisualStyle: (style: MediaVisualStyle) => void
+  setVisualizerMode: (mode: VisualizerMode) => void
   setBluetoothConnected: (v: boolean) => void
   currentTrack: () => Track
 }
@@ -34,7 +42,8 @@ export const useMediaStore = create<MediaStoreState>((set, get) => ({
   elapsedSeconds: 0,
   bluetoothConnected: true,
   visualStyle: 'CASSETTE_86',
-  levels: new Array(16).fill(0.1),
+  visualizerMode: 'SPECTRUM',
+  levels: new Array(BAND_COUNT).fill(0.08),
 
   play: () => set({ isPlaying: true }),
   pause: () => set({ isPlaying: false }),
@@ -51,17 +60,40 @@ export const useMediaStore = create<MediaStoreState>((set, get) => ({
   },
   tick: (dtSeconds) => {
     const s = get()
-    if (!s.isPlaying) return
+    if (!s.isPlaying) {
+      if (s.levels.some((l) => l > 0.09)) {
+        set({ levels: s.levels.map((l) => Math.max(0.08, l - dtSeconds * 0.6)) })
+      }
+      return
+    }
     const track = TRACKS.find((t) => t.id === s.currentTrackId) ?? TRACKS[0]
-    let elapsed = s.elapsedSeconds + dtSeconds
+    const elapsed = s.elapsedSeconds + dtSeconds
     if (elapsed >= track.durationSeconds) {
       get().next()
       return
     }
-    const levels = s.levels.map(() => 0.08 + Math.random() * 0.92)
-    set({ elapsedSeconds: elapsed, levels })
+
+    // Correlated pseudo-FFT: each band occasionally re-targets influenced by
+    // its neighbours, then the visible level eases toward the target with a
+    // fast attack / slower decay so motion reads as music, not noise.
+    const nextLevels = s.levels.slice()
+    for (let i = 0; i < BAND_COUNT; i++) {
+      bandRetarget[i] -= dtSeconds
+      if (bandRetarget[i] <= 0) {
+        bandRetarget[i] = 0.12 + Math.random() * 0.3
+        const neighbour = bandTargets[Math.max(0, i - 1)]
+        const bias = i < 3 ? 0.55 : i < 8 ? 0.4 : 0.25
+        bandTargets[i] = Math.min(1, Math.max(0.06, neighbour * 0.4 + Math.random() * bias + 0.08))
+      }
+      const target = bandTargets[i]
+      const rate = target > nextLevels[i] ? 9 : 2.6
+      nextLevels[i] = nextLevels[i] + (target - nextLevels[i]) * Math.min(1, rate * dtSeconds)
+    }
+
+    set({ elapsedSeconds: elapsed, levels: nextLevels })
   },
   setVisualStyle: (style) => set({ visualStyle: style }),
+  setVisualizerMode: (mode) => set({ visualizerMode: mode }),
   setBluetoothConnected: (v) => set({ bluetoothConnected: v }),
   currentTrack: () => TRACKS.find((t) => t.id === get().currentTrackId) ?? TRACKS[0],
 }))

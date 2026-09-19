@@ -13,6 +13,7 @@ function clearBootTimers() {
 export function triggerBootSequence() {
   clearBootTimers()
   const store = useVehicleStore.getState()
+  store.clearBreadcrumb()
   resetAutoDrive()
 
   store.setBootPhase('BLACK')
