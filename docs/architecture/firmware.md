@@ -20,6 +20,8 @@ The 1024 × 600 touch variant is named **ESP32-S3-Touch-LCD-5B** in the manufact
 
 `app_main` owns composition. Hardware drivers implement small transport interfaces; protocol components accept byte arrays, frames and monotonic timestamps. Only the hardware adapter configures GPIO. Simulator and host tests reuse protocol parsers and conversions without FreeRTOS or hardware headers.
 
+The inspected family schematic does not provide unused externally accessible native UART/I2S pins for all requested additions. The Rev-A architecture therefore reserves an I2C-connected companion controller for precise K-Line timing, warning audio and power supervision. Its part, pinout and inter-controller protocol remain a design decision requiring validation. Do not implement timing-sensitive K-Line initialization by toggling a slow generic I2C expander. The portable state machine can run on the chosen companion as well as the host; no companion hardware support is claimed by the initial ESP-IDF scaffold.
+
 ```mermaid
 flowchart TD
   HAL[Audited board adapters] --> Link[VehicleLinkManager]
@@ -75,4 +77,3 @@ Plan 16-MB partitioning with NVS, `otadata`, two OTA application slots and asset
 4. Generic read-only live data, DTC and optional VIN; independent validation on a vehicle.
 5. Audited K-Line hardware and recorded MEMS2J sessions before proprietary decoding.
 6. GNSS/IMU, buffered SD, BLE phone link, local warning audio, power-off and OTA qualification.
-
