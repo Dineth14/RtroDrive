@@ -1,5 +1,7 @@
 import type { ScenarioId } from '@/types/scenario'
 import { useVehicleStore } from '@/state/vehicleStore'
+import { useSettingsStore } from '@/state/settingsStore'
+import { useMediaStore } from '@/state/mediaStore'
 import { clearAllOverrides, setOverride, clearOverride, setForcedUnavailable } from './telemetryEngine'
 import { createDtc } from './diagnosticEngine'
 
@@ -226,6 +228,124 @@ export const SCENARIOS: Record<ScenarioId, ScenarioDef> = {
       )
       useVehicleStore.getState().addOrUpdateDtc(dtc)
     },
+  },
+  TURBO_CRUISE: {
+    id: 'TURBO_CRUISE',
+    label: 'Turbo Cruise',
+    durationMs: 6000,
+    releaseOverridesAtEnd: true,
+    keyframes: [
+      { atMs: 0, values: { speedKph: 40, rpm: 1800 } },
+      { atMs: 6000, values: { speedKph: 95, rpm: 3400 } },
+    ],
+  },
+  TURBO_PULL: {
+    id: 'TURBO_PULL',
+    label: 'Turbo Pull',
+    durationMs: 5000,
+    releaseOverridesAtEnd: true,
+    keyframes: [
+      { atMs: 0, values: { speedKph: 30, rpm: 1600 } },
+      { atMs: 5000, values: { speedKph: 170, rpm: 7200 } },
+    ],
+  },
+  OVERBOOST: {
+    id: 'OVERBOOST',
+    label: 'Overboost',
+    durationMs: 12000,
+    keyframes: [
+      { atMs: 0, values: { speedKph: 90, rpm: 4500, boostBar: 0.8 } },
+      { atMs: 3000, values: { boostBar: 1.0 } },
+      { atMs: 6000, values: { boostBar: 1.2 } },
+      { atMs: 9000, values: { boostBar: 1.4 } },
+      { atMs: 12000, values: { boostBar: 1.6 } },
+    ],
+  },
+  GPS_DRIVE: {
+    id: 'GPS_DRIVE',
+    label: 'GPS Drive',
+    durationMs: 8000,
+    releaseOverridesAtEnd: true,
+    setup: () => {
+      useVehicleStore.getState().setConnections({ gps: 'FIX' })
+      useVehicleStore.getState().setHardware({ gnss: 'CONNECTED' })
+    },
+    keyframes: [
+      { atMs: 0, values: { speedKph: 20, rpm: 1500 } },
+      { atMs: 4000, values: { speedKph: 75, rpm: 2600 } },
+      { atMs: 8000, values: { speedKph: 60, rpm: 2200 } },
+    ],
+  },
+  GPS_SIGNAL_LOSS: {
+    id: 'GPS_SIGNAL_LOSS',
+    label: 'GPS Signal Loss',
+    durationMs: 1000,
+    keyframes: [{ atMs: 0 }, { atMs: 1000 }],
+    setup: () => {
+      useVehicleStore.getState().setConnections({ gps: 'LOST' })
+      useVehicleStore.getState().setHardware({ gnss: 'FAULT' })
+    },
+  },
+  NAVIGATION_TURN: {
+    id: 'NAVIGATION_TURN',
+    label: 'Navigation Turn',
+    durationMs: 16000,
+    releaseOverridesAtEnd: true,
+    setup: () => {
+      const store = useVehicleStore.getState()
+      store.setConnections({ gps: 'FIX' })
+      store.setNavMode('PHONE_ASSISTED')
+      store.setNavInstruction({ kind: 'STRAIGHT', distanceM: 800 })
+    },
+    keyframes: [
+      { atMs: 0, values: { speedKph: 55, rpm: 2200 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'STRAIGHT', distanceM: 800 }) },
+      { atMs: 4000, values: { speedKph: 40 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'TURN_LEFT', distanceM: 350 }) },
+      { atMs: 7000, values: { speedKph: 25 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'TURN_LEFT', distanceM: 40 }) },
+      { atMs: 8500, values: { speedKph: 45 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'ROUNDABOUT', distanceM: 600, roundaboutExit: 2 }) },
+      { atMs: 12000, values: { speedKph: 50 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'STRAIGHT', distanceM: 1200, destinationDistanceKm: 12.4, destinationEtaMin: 18 }) },
+      {
+        atMs: 16000,
+        values: { speedKph: 10 },
+        onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'DESTINATION', distanceM: 0 }),
+      },
+    ],
+  },
+  MUSIC_PLAYBACK: {
+    id: 'MUSIC_PLAYBACK',
+    label: 'Music Playback',
+    durationMs: 500,
+    keyframes: [{ atMs: 0 }, { atMs: 500 }],
+    setup: () => {
+      useMediaStore.getState().play()
+    },
+  },
+  MUSIC_WARNING: {
+    id: 'MUSIC_WARNING',
+    label: 'Music + Warning',
+    durationMs: 20000,
+    setup: () => {
+      useMediaStore.getState().play()
+    },
+    keyframes: [
+      { atMs: 0, values: { speedKph: 70, rpm: 2600, coolantTempC: 88 } },
+      { atMs: 8000, values: { coolantTempC: 96 } },
+      { atMs: 12000, values: { coolantTempC: 105 } },
+      { atMs: 15000, values: { coolantTempC: 115 } },
+      { atMs: 20000, values: { coolantTempC: 90 } },
+    ],
+  },
+  NIGHT_DRIVE: {
+    id: 'NIGHT_DRIVE',
+    label: 'Night Drive',
+    durationMs: 6000,
+    releaseOverridesAtEnd: true,
+    setup: () => {
+      useSettingsStore.getState().updateDisplay({ nightMode: true, autoBrightness: true, ambientLight: 12 })
+    },
+    keyframes: [
+      { atMs: 0, values: { speedKph: 50, rpm: 2000 } },
+      { atMs: 6000, values: { speedKph: 90, rpm: 2800 } },
+    ],
   },
 }
 

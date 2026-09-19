@@ -65,7 +65,7 @@ export function ArcTachometer({
           </text>
         )
       })}
-      <text x={cx} y={cy - size * 0.02} fontSize={size * 0.03} fill="var(--cl-muted-text)" textAnchor="middle" letterSpacing={2}>
+      <text x={cx} y={cy - rInner * 0.62} fontSize={size * 0.026} fill="var(--cl-muted-text)" textAnchor="middle" letterSpacing={2}>
         RPM &times;1000
       </text>
     </svg>

@@ -92,17 +92,41 @@ export interface SevenSegmentGroupProps {
 }
 
 export function SevenSegmentGroup({ text, litColor, dimColor, heightPx = 64, glow = true, gapPx = 4 }: SevenSegmentGroupProps) {
+  const items: { ch: string; dot: boolean }[] = []
+  for (const ch of text) {
+    if (ch === '.') {
+      if (items.length > 0) items[items.length - 1].dot = true
+      continue
+    }
+    items.push({ ch, dot: false })
+  }
+  const dotSize = heightPx * 0.09
   return (
     <div className="rd-sevenseg-group" style={{ gap: gapPx }}>
-      {text.split('').map((ch, i) => (
-        <SevenSegmentDigit
-          key={i}
-          value={/[0-9\- ]/.test(ch) ? ch : ' '}
-          litColor={litColor}
-          dimColor={dimColor}
-          heightPx={heightPx}
-          glow={glow}
-        />
+      {items.map((it, i) => (
+        <span key={i} style={{ position: 'relative', display: 'inline-flex' }}>
+          <SevenSegmentDigit
+            value={/[0-9\- ]/.test(it.ch) ? it.ch : ' '}
+            litColor={litColor}
+            dimColor={dimColor}
+            heightPx={heightPx}
+            glow={glow}
+          />
+          {it.dot && (
+            <span
+              style={{
+                position: 'absolute',
+                right: -gapPx * 0.9,
+                bottom: heightPx * 0.02,
+                width: dotSize,
+                height: dotSize,
+                borderRadius: '50%',
+                background: litColor,
+                boxShadow: glow ? `0 0 4px ${litColor}` : undefined,
+              }}
+            />
+          )}
+        </span>
       ))}
     </div>
   )

@@ -18,6 +18,7 @@ type OverridableChannel =
   | 'boostBar'
   | 'mapAbsoluteKpa'
   | 'barometricPressureKpa'
+  | 'headingDeg'
 
 type OverrideMap = Partial<Record<OverridableChannel, number>>
 
@@ -248,7 +249,8 @@ function tick(dtSeconds: number) {
     const distanceDeg = (next.gpsSpeedKph.value * dtSeconds) / 3600 / 111
     next.latitude = makeChannel(t.latitude.value + Math.cos(headingRad) * distanceDeg, 'GPS', true)
     next.longitude = makeChannel(t.longitude.value + Math.sin(headingRad) * distanceDeg, 'GPS', true)
-    next.headingDeg = makeChannel((t.headingDeg.value + noise(2) + 360) % 360, 'GPS', true)
+    const nextHeading = overrides.headingDeg !== undefined ? overrides.headingDeg : t.headingDeg.value + noise(2)
+    next.headingDeg = makeChannel((nextHeading + 360) % 360, 'GPS', true)
   } else {
     next.latitude = t.latitude
     next.longitude = t.longitude

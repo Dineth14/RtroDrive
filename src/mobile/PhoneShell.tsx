@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Home, Activity, AlertTriangle, Route, Settings, ChevronLeft } from 'lucide-react'
+import { Home, Activity, AlertTriangle, Route, Settings, ChevronLeft, MapPin } from 'lucide-react'
 import { useVehicleStore } from '@/state/vehicleStore'
 import { HomeScreen } from './HomeScreen'
 import { LiveDataScreen } from './LiveDataScreen'
+import { GpsMapScreen } from './GpsMapScreen'
 import { DiagnosticsScreen } from './DiagnosticsScreen'
 import { DiagnosticDetailScreen } from './DiagnosticDetailScreen'
 import { TripsScreen } from './TripsScreen'
@@ -20,6 +21,7 @@ import './PhoneShell.css'
 export type PhoneScreenId =
   | 'HOME'
   | 'LIVE'
+  | 'GPS'
   | 'DIAG_LIST'
   | 'DIAG_DETAIL'
   | 'TRIPS_LIST'
@@ -33,11 +35,12 @@ export type PhoneScreenId =
   | 'SETTINGS_MEDIA'
   | 'SETTINGS_ABOUT'
 
-type Tab = 'HOME' | 'LIVE' | 'DIAG' | 'TRIPS' | 'SETTINGS'
+type Tab = 'HOME' | 'LIVE' | 'GPS' | 'DIAG' | 'TRIPS' | 'SETTINGS'
 
 const TAB_HOME_SCREEN: Record<Tab, PhoneScreenId> = {
   HOME: 'HOME',
   LIVE: 'LIVE',
+  GPS: 'GPS',
   DIAG: 'DIAG_LIST',
   TRIPS: 'TRIPS_LIST',
   SETTINGS: 'SETTINGS_HOME',
@@ -46,6 +49,7 @@ const TAB_HOME_SCREEN: Record<Tab, PhoneScreenId> = {
 const SCREEN_TITLES: Record<PhoneScreenId, string> = {
   HOME: 'RETRODRIVE',
   LIVE: 'LIVE DATA',
+  GPS: 'GPS / MAP',
   DIAG_LIST: 'DIAGNOSTICS',
   DIAG_DETAIL: 'DIAGNOSTIC DETAIL',
   TRIPS_LIST: 'TRIPS',
@@ -121,8 +125,9 @@ export function PhoneShell() {
             <div className="rd-m-driving-warning">VEHICLE IN MOTION — CHANGES MAY BE DISTRACTING. PROCEED WITH CAUTION.</div>
           )}
 
-          {screen === 'HOME' && <HomeScreen onOpenDtc={openDtc} />}
+          {screen === 'HOME' && <HomeScreen onOpenDtc={openDtc} onViewLocation={() => goTab('GPS')} />}
           {screen === 'LIVE' && <LiveDataScreen />}
+          {screen === 'GPS' && <GpsMapScreen />}
           {screen === 'DIAG_LIST' && <DiagnosticsScreen onOpenDtc={openDtc} />}
           {screen === 'DIAG_DETAIL' && selectedDtc && <DiagnosticDetailScreen code={selectedDtc} />}
           {screen === 'TRIPS_LIST' && <TripsScreen onOpenTrip={openTrip} />}
@@ -142,6 +147,7 @@ export function PhoneShell() {
             [
               ['HOME', Home, 'HOME'],
               ['LIVE', Activity, 'LIVE'],
+              ['GPS', MapPin, 'GPS'],
               ['DIAG', AlertTriangle, 'DIAG'],
               ['TRIPS', Route, 'TRIPS'],
               ['SETTINGS', Settings, 'MORE'],

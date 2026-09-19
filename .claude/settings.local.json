@@ -8,7 +8,12 @@
       "Bash(chromium-cli --help)",
       "Bash(npx --yes playwright --version)",
       "Bash(npx --yes playwright install chromium)",
-      "Bash(node verify2.mjs)"
+      "Bash(node verify2.mjs)",
+      "Bash(curl -sf http://localhost:5173)",
+      "Bash(node verify3.mjs)",
+      "Bash(node verify4.mjs)",
+      "Bash(node verify5.mjs)",
+      "Bash(node verify6.mjs)"
     ]
   }
 }

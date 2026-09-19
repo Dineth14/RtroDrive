@@ -1,0 +1,55 @@
+.rd-perf {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  height: 100%;
+}
+.rd-perf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px 36px;
+}
+.rd-perf-peaks {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid var(--cl-grid-line);
+  border-bottom: 1px solid var(--cl-grid-line);
+  padding: 14px 0;
+}
+.rd-perf-peak {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.rd-perf-peak-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--cl-muted-text);
+}
+.rd-perf-peak-value {
+  font-size: 22px;
+  color: var(--cl-amber);
+}
+.rd-perf-accel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: auto;
+}
+.rd-perf-accel-value {
+  font-size: 34px;
+  color: var(--cl-primary-bright);
+}
+.rd-perf-accel-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--cl-muted-text);
+}
+.rd-perf-accel-note {
+  font-size: 10px;
+  color: var(--cl-primary-dim);
+  letter-spacing: 1px;
+}

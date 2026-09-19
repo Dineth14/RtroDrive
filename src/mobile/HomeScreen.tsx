@@ -10,13 +10,23 @@ const STATUS_CLASS: Record<string, string> = {
   UNKNOWN: 'rd-m-status-unknown',
 }
 
-export function HomeScreen({ onOpenDtc }: { onOpenDtc: (code: string) => void }) {
+function timeAgo(ts: number) {
+  const mins = Math.floor((Date.now() - ts) / 60000)
+  if (mins < 1) return 'just now'
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return h > 0 ? `${h}h ${m}m ago` : `${m}m ago`
+}
+
+export function HomeScreen({ onOpenDtc, onViewLocation }: { onOpenDtc: (code: string) => void; onViewLocation?: () => void }) {
   const vehicle = useSettingsStore((s) => s.vehicleProfile)
   const connections = useVehicleStore((s) => s.connections)
+  const ignition = useVehicleStore((s) => s.ignition)
   const telemetry = useVehicleStore((s) => s.telemetry)
   const health = useVehicleStore((s) => s.health)
   const dtcs = useVehicleStore((s) => s.dtcs).filter((d) => d.status === 'ACTIVE')
   const trips = useVehicleStore((s) => s.trips)
+  const parkedLocation = useVehicleStore((s) => s.parkedLocation)
   const lastTrip = trips[0]
 
   const overallGood = health.every((h) => h.status === 'NORMAL')
@@ -30,6 +40,16 @@ export function HomeScreen({ onOpenDtc }: { onOpenDtc: (code: string) => void })
           {connected ? 'CONNECTED' : 'DISCONNECTED'}
         </div>
       </div>
+
+      {ignition === 'OFF' && parkedLocation && (
+        <div className="rd-m-card">
+          <div className="rd-m-card-title">PARKED</div>
+          <div className="rd-m-row clickable" onClick={onViewLocation}>
+            <span className="rd-m-row-label">{timeAgo(parkedLocation.timestamp)}</span>
+            <span style={{ color: '#8fcb83', fontSize: 12 }}>VIEW LOCATION</span>
+          </div>
+        </div>
+      )}
 
       <div className="rd-m-card">
         <div className="rd-m-card-title">VEHICLE HEALTH</div>

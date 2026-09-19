@@ -131,17 +131,30 @@ export function App() {
         case 'H':
           goto('HEALTH')
           break
+        case 'g':
+        case 'G':
+          goto('GPS')
+          break
         case '1':
           goto('DASHBOARD')
           break
         case '2':
-          goto('DIAGNOSTICS')
+          goto('PERFORMANCE')
           break
         case '3':
-          goto('TRIP')
+          goto('GPS')
           break
         case '4':
+          goto('HEALTH')
+          break
+        case '5':
+          goto('DIAGNOSTICS')
+          break
+        case '6':
           goto('MEDIA')
+          break
+        case '7':
+          goto('TRIP')
           break
         case 'ArrowUp':
           e.preventDefault()

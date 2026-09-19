@@ -4,6 +4,8 @@ import { useSettingsStore } from '@/state/settingsStore'
 import { applyClusterTheme } from '@/theme/themes'
 import { BootSequence } from './BootSequence'
 import { DashboardScreen } from './DashboardScreen'
+import { PerformanceScreen } from './PerformanceScreen'
+import { GpsScreen } from './GpsScreen'
 import { DiagnosticsScreen } from './DiagnosticsScreen'
 import { VehicleHealthScreen } from './VehicleHealthScreen'
 import { MediaScreen } from './MediaScreen'
@@ -17,6 +19,9 @@ export function ClusterShell() {
   const rootRef = useRef<HTMLDivElement>(null)
   const theme = useSettingsStore((s) => s.display.theme)
   const brightness = useSettingsStore((s) => s.display.brightness)
+  const autoBrightness = useSettingsStore((s) => s.display.autoBrightness)
+  const ambientLight = useSettingsStore((s) => s.display.ambientLight)
+  const nightMode = useSettingsStore((s) => s.display.nightMode)
   const bootPhase = useVehicleStore((s) => s.bootPhase)
   const ignition = useVehicleStore((s) => s.ignition)
   const activeScreen = useVehicleStore((s) => s.activeClusterScreen)
@@ -29,12 +34,14 @@ export function ClusterShell() {
   const booting = bootPhase !== 'IDLE' && bootPhase !== 'DONE'
   const showIgnitionOff = !booting && ignition === 'OFF'
 
+  const effectiveBrightness = autoBrightness ? 25 + ambientLight * 0.65 : brightness
+  const brightnessMultiplier = 0.5 + (effectiveBrightness / 100) * 0.58
+  const filter = nightMode
+    ? `brightness(${brightnessMultiplier * 0.82}) saturate(0.88) sepia(0.12)`
+    : `brightness(${brightnessMultiplier})`
+
   return (
-    <div
-      ref={rootRef}
-      className="rd-cluster"
-      style={{ filter: `brightness(${0.55 + (brightness / 100) * 0.55})` }}
-    >
+    <div ref={rootRef} className="rd-cluster" style={{ filter }}>
       {booting && <BootSequence />}
 
       {!booting && showIgnitionOff && (
@@ -45,13 +52,17 @@ export function ClusterShell() {
         <>
           <StatusBar />
           {activeScreen === 'DASHBOARD' && <DashboardScreen />}
+          {activeScreen === 'PERFORMANCE' && <PerformanceScreen />}
+          {activeScreen === 'GPS' && <GpsScreen />}
           {activeScreen === 'DIAGNOSTICS' && <DiagnosticsScreen />}
           {activeScreen === 'HEALTH' && <VehicleHealthScreen />}
           {activeScreen === 'TRIP' && <TripScreen />}
           {activeScreen === 'MEDIA' && <MediaScreen />}
           {activeScreen === 'TEST' && <TestModeScreen />}
           <WarningOverlay />
-          {!hasWarnings && <div className="rd-nav-hint">1 DASH · 2 DIAG · 3 TRIP · 4 MEDIA · H HEALTH</div>}
+          {!hasWarnings && (
+            <div className="rd-nav-hint">1 DASH · 2 PERF · 3 GPS · 4 HEALTH · 5 DIAG · 6 MEDIA · 7 TRIP</div>
+          )}
         </>
       )}
 
