@@ -13,8 +13,9 @@ import { TripScreen } from './TripScreen'
 import { WarningOverlay } from './WarningOverlay'
 import { StatusBar } from './StatusBar'
 import { TestModeScreen } from './TestModeScreen'
+import { TerrainScreen } from './TerrainScreen'
 import './ClusterShell.css'
-import { getVisualProfile, isClassicLayout } from '@/vehicleProfiles/profiles'
+import { getVisualProfile, isClassicLayout, isOffRoadLayout } from '@/vehicleProfiles/profiles'
 
 export function ClusterShell() {
   const rootRef = useRef<HTMLDivElement>(null)
@@ -63,10 +64,11 @@ export function ClusterShell() {
           {activeScreen === 'HEALTH' && <VehicleHealthScreen />}
           {activeScreen === 'TRIP' && <TripScreen />}
           {activeScreen === 'MEDIA' && <MediaScreen />}
+          {activeScreen === 'TERRAIN' && <TerrainScreen />}
           {activeScreen === 'TEST' && <ParkedDisplayTest />}
           <WarningOverlay />
           {!hasWarnings && (
-            <div className="rd-nav-hint">1 DASH · 2 PERF · 3 GPS · 4 HEALTH · 5 DIAG · 6 MEDIA · 7 TRIP</div>
+            <div className="rd-nav-hint">1 DASH · 2 PERF · 3 GPS · 4 HEALTH · 5 DIAG · 6 MEDIA · 7 TRIP{isOffRoadLayout(layout) ? ' · 8 TERRAIN' : ''}</div>
           )}
         </>
       )}

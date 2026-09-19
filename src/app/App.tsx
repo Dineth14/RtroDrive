@@ -159,6 +159,11 @@ export function App() {
         case '7':
           goto('TRIP')
           break
+        case '8':
+        case 't':
+        case 'T':
+          goto('TERRAIN')
+          break
         case 'ArrowUp':
           e.preventDefault()
           if (e.shiftKey) setOverride('rpm', clamp(t.rpm.value + 250, 0, 8000))

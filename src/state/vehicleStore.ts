@@ -150,6 +150,7 @@ export type ClusterScreenId =
   | 'HEALTH'
   | 'TRIP'
   | 'MEDIA'
+  | 'TERRAIN'
   | 'TEST'
 
 interface PersistedVehicleShape {
