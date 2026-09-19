@@ -1,0 +1,75 @@
+.rd-diag {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow: hidden;
+}
+.rd-diag-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cl-primary-dim);
+  font-size: 16px;
+  letter-spacing: 3px;
+}
+.rd-diag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+.rd-diag-card {
+  border: 1px solid var(--cl-grid-line);
+  background: var(--cl-panel);
+  padding: 16px 22px;
+  display: grid;
+  grid-template-columns: 140px 1fr 160px;
+  gap: 18px;
+  align-items: center;
+}
+.rd-diag-card.critical {
+  border-color: var(--cl-critical-red);
+}
+.rd-diag-card.warning {
+  border-color: var(--cl-warning-amber);
+}
+.rd-diag-code {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.rd-diag-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rd-diag-desc-title {
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.rd-diag-evidence {
+  font-size: 12px;
+  color: var(--cl-muted-text);
+  display: flex;
+  gap: 14px;
+}
+.rd-diag-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.rd-diag-severity {
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+}
+.rd-diag-phone-hint {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--cl-primary-dim);
+}

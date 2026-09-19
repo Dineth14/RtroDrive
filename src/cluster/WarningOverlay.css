@@ -1,0 +1,79 @@
+.rd-warn-box {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  min-width: 380px;
+  padding: 20px 32px;
+  background: rgba(5, 5, 5, 0.94);
+  border: 2px solid var(--cl-warning-amber);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 200;
+  text-align: center;
+}
+.rd-warn-box.critical {
+  border-color: var(--cl-critical-red);
+  animation: rd-critical-pulse 0.9s ease-in-out infinite;
+  z-index: 300;
+  min-width: 460px;
+  padding: 28px 40px;
+}
+@keyframes rd-critical-pulse {
+  0%, 100% { box-shadow: 0 0 18px var(--cl-critical-red); }
+  50% { box-shadow: 0 0 40px var(--cl-critical-red); }
+}
+.rd-warn-title {
+  font-size: 20px;
+  letter-spacing: 5px;
+  color: var(--cl-warning-amber);
+}
+.rd-warn-box.critical .rd-warn-title {
+  color: var(--cl-critical-red);
+  font-size: 24px;
+}
+.rd-warn-value {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.rd-warn-box.critical .rd-warn-value {
+  font-size: 52px;
+}
+.rd-warn-detail {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--cl-muted-text);
+}
+.rd-warn-ack {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--cl-primary-dim);
+  border: 1px solid var(--cl-grid-line);
+  padding: 4px 12px;
+  cursor: pointer;
+  background: transparent;
+}
+.rd-warn-ack:hover {
+  color: var(--cl-primary);
+  border-color: var(--cl-primary-dim);
+}
+.rd-warn-banners {
+  position: absolute;
+  bottom: 8px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  z-index: 150;
+}
+.rd-warn-banner {
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.5);
+}

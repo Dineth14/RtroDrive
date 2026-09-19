@@ -1,0 +1,9 @@
+.rd-sevenseg-group {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+.rd-sevenseg-digit {
+  display: block;
+  flex-shrink: 0;
+}

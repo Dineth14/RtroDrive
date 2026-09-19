@@ -1,0 +1,109 @@
+.rd-dev {
+  width: 340px;
+  height: 100%;
+  background: #101214;
+  border: 1px solid #22262a;
+  border-radius: 10px;
+  padding: 16px;
+  overflow-y: auto;
+  color: #cfd4d8;
+  font-family: 'Consolas', 'SF Mono', monospace;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rd-dev-title {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #f0f0f0;
+  font-weight: 700;
+  border-bottom: 1px solid #22262a;
+  padding-bottom: 10px;
+}
+.rd-dev-section-title {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #7a8189;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.rd-dev-btn-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.rd-dev-btn {
+  flex: 1;
+  min-width: 60px;
+  background: #191c1f;
+  border: 1px solid #2a2f34;
+  color: #cfd4d8;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: 4px;
+}
+.rd-dev-btn.active {
+  background: #24422f;
+  border-color: #3a6b48;
+  color: #b6e5a8;
+}
+.rd-dev-btn:hover {
+  border-color: #3a4046;
+}
+.rd-dev-slider-row {
+  margin-bottom: 10px;
+}
+.rd-dev-slider-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: #9aa1a8;
+}
+.rd-dev-slider-value {
+  color: #8fcb83;
+}
+.rd-dev-slider-row input[type='range'] {
+  width: 100%;
+  accent-color: #8fcb83;
+}
+.rd-dev-scenario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.rd-dev-scenario-btn {
+  background: #171a1c;
+  border: 1px solid #2a2f34;
+  color: #cfd4d8;
+  padding: 8px 6px;
+  cursor: pointer;
+  font-size: 10.5px;
+  border-radius: 4px;
+  text-align: left;
+}
+.rd-dev-scenario-btn:hover {
+  border-color: #3a6b48;
+  color: #b6e5a8;
+}
+.rd-dev-scenario-btn.active {
+  background: #24422f;
+  border-color: #3a6b48;
+  color: #b6e5a8;
+}
+.rd-dev-divider {
+  border-top: 1px solid #22262a;
+}
+.rd-dev-clear-btn {
+  background: #241a1a;
+  border: 1px solid #3a2a2a;
+  color: #d89090;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.rd-dev-clear-btn:hover {
+  border-color: #5a3a3a;
+}

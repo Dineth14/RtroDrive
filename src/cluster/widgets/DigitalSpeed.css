@@ -1,0 +1,18 @@
+.rd-digitalspeed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.rd-digitalspeed-unit {
+  font-size: 15px;
+  letter-spacing: 4px;
+  color: var(--cl-muted-text);
+  margin-top: -2px;
+}
+.rd-digitalspeed-source {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--cl-primary-dim);
+  height: 12px;
+}

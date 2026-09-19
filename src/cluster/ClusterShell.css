@@ -1,0 +1,86 @@
+.rd-cluster {
+  --cl-background: #050906;
+  --cl-panel: #07100a;
+  --cl-panel-alt: #0a1710;
+  --cl-primary: #8fcb83;
+  --cl-primary-bright: #b6e5a8;
+  --cl-primary-dim: #456b45;
+  --cl-amber: #d7a94a;
+  --cl-warning-amber: #e0a33a;
+  --cl-critical-red: #d84a3a;
+  --cl-muted-text: #69806b;
+  --cl-grid-line: #243827;
+
+  width: 1024px;
+  height: 600px;
+  background: var(--cl-background);
+  color: var(--cl-primary);
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  font-family: 'Consolas', 'SF Mono', 'JetBrains Mono', 'Courier New', monospace;
+  user-select: none;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.65);
+}
+
+.rd-cluster-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.012) 0px,
+    rgba(255, 255, 255, 0.012) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  z-index: 500;
+}
+
+.rd-cluster-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 120px 20px rgba(0, 0, 0, 0.55);
+  z-index: 499;
+}
+
+.rd-screen {
+  position: absolute;
+  inset: 0;
+  padding: 22px 34px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rd-ignition-off {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cl-primary-dim);
+  font-size: 13px;
+  letter-spacing: 4px;
+}
+
+.rd-section-title {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--cl-muted-text);
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rd-nav-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 14px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--cl-primary-dim);
+  z-index: 50;
+}

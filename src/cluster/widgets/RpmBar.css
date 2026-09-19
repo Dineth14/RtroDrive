@@ -1,0 +1,48 @@
+.rd-rpmbar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.rd-rpmbar-scale {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-bottom: 4px;
+}
+.rd-rpmbar-scale span {
+  font-size: 13px;
+  color: var(--cl-muted-text);
+  letter-spacing: 1px;
+  width: 20px;
+  text-align: center;
+}
+.rd-rpmbar-track {
+  height: 64px;
+  width: 100%;
+  background: var(--cl-panel-alt);
+  border: 1px solid var(--cl-grid-line);
+  display: flex;
+  padding: 3px;
+  gap: 2px;
+  position: relative;
+}
+.rd-rpmbar-seg {
+  flex: 1;
+  background: var(--cl-grid-line);
+  transition: background-color 0.08s linear;
+}
+.rd-rpmbar-caption {
+  margin-top: 6px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--cl-muted-text);
+}
+.rd-rpmbar-redline-mark {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--cl-critical-red);
+  opacity: 0.7;
+}

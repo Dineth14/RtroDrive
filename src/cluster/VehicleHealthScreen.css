@@ -1,0 +1,63 @@
+.rd-health {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  height: 100%;
+}
+.rd-health-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rd-health-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid var(--cl-grid-line);
+  background: var(--cl-panel);
+  cursor: pointer;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.rd-health-row.selected {
+  border-color: var(--cl-primary-dim);
+  background: var(--cl-panel-alt);
+}
+.rd-health-status {
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.rd-health-detail {
+  border: 1px solid var(--cl-grid-line);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rd-health-detail-title {
+  font-size: 16px;
+  letter-spacing: 3px;
+}
+.rd-health-detail-status {
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+.rd-health-evidence-line {
+  font-size: 13px;
+  color: var(--cl-muted-text);
+  letter-spacing: 0.5px;
+}
+.rd-health-note {
+  margin-top: auto;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--cl-amber);
+}
+.rd-health-locked {
+  font-size: 12px;
+  color: var(--cl-primary-dim);
+  letter-spacing: 1.5px;
+  text-align: center;
+  margin-top: 40px;
+}

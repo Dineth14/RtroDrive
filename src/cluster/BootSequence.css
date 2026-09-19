@@ -1,0 +1,64 @@
+.rd-boot {
+  position: absolute;
+  inset: 0;
+  background: var(--cl-background);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: var(--cl-primary);
+}
+.rd-boot-logo {
+  font-size: 34px;
+  letter-spacing: 12px;
+  font-weight: 700;
+  color: var(--cl-primary-bright);
+  text-shadow: 0 0 12px currentColor;
+}
+.rd-boot-sub {
+  font-size: 13px;
+  letter-spacing: 6px;
+  color: var(--cl-muted-text);
+}
+.rd-boot-segrow {
+  display: flex;
+  gap: 40px;
+  align-items: baseline;
+}
+.rd-boot-segblock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.rd-boot-segblock-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--cl-muted-text);
+}
+.rd-boot-lamprow {
+  display: flex;
+  gap: 18px;
+}
+.rd-boot-status {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 15px;
+  letter-spacing: 2px;
+  min-width: 380px;
+}
+.rd-boot-status-line {
+  display: flex;
+  justify-content: space-between;
+}
+.rd-boot-status-dots {
+  color: var(--cl-grid-line);
+}
+.rd-boot-systemok {
+  font-size: 24px;
+  letter-spacing: 8px;
+  color: var(--cl-primary-bright);
+  text-shadow: 0 0 14px currentColor;
+}

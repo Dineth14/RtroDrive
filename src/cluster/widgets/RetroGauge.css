@@ -1,0 +1,48 @@
+.rd-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.rd-gauge-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.rd-gauge-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--cl-muted-text);
+}
+.rd-gauge-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.rd-gauge-value {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.rd-gauge-unit {
+  font-size: 11px;
+  color: var(--cl-muted-text);
+}
+.rd-gauge-track {
+  height: 10px;
+  width: 100%;
+  background: var(--cl-panel-alt);
+  border: 1px solid var(--cl-grid-line);
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+}
+.rd-gauge-seg {
+  flex: 1;
+  background: var(--cl-grid-line);
+  transition: background-color 0.15s linear;
+}
+.rd-gauge-seg.lit {
+  box-shadow: 0 0 4px currentColor;
+}
