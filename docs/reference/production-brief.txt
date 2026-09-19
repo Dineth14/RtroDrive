@@ -1,0 +1,2360 @@
+PROJECT: RETRODRIVE
+Production-Intent Automotive Smart Instrument, Diagnostic and Expedition Display
+
+ROLE
+
+Act as the lead embedded systems engineer, automotive electronics engineer,
+PCB designer, firmware architect, mobile developer, UI/UX engineer,
+test engineer, manufacturing engineer, and technical documentation lead.
+
+You are responsible for turning the existing RetroDrive laptop/browser
+prototype into a coherent Git repository containing a real buildable product.
+
+Do NOT throw away the existing laptop interface.
+
+The existing interface is the current UX/design prototype and must be inspected,
+understood, cleaned up, modularized, and reused as the visual and behavioral
+reference for:
+
+1. the embedded 1024 x 600 vehicle display,
+2. the phone application,
+3. the laptop development simulator.
+
+The final repository must contain hardware, PCB, firmware, software,
+vehicle protocol definitions, simulation tools, manufacturing files,
+test procedures, BOMs, documentation, enclosure data, and build instructions.
+
+============================================================
+1. PRODUCT DEFINITION
+============================================================
+
+Product name:
+
+RetroDrive
+
+Product concept:
+
+RetroDrive is a vehicle-adaptive auxiliary instrument, diagnostics,
+navigation, condition-monitoring and expedition display intended especially
+for enthusiast, classic, youngtimer and off-road vehicles.
+
+It combines modern electronics with interfaces visually appropriate to the
+vehicle era.
+
+The device is NOT simply an OBD display.
+
+Its architecture must support multiple vehicle physical layers and multiple
+vehicle-specific software profiles.
+
+Initial prioritized targets:
+
+A. Generic CAN OBD-II vehicle
+B. 1998 Rover Mini MPi / MEMS 2J
+C. Toyota Altezza SXE10 profile scaffold
+D. future Subaru GC8 SSM support
+E. future Mitsubishi MUT support
+F. future Defender/Pajero/Land Cruiser profiles
+
+Only claim a vehicle as VERIFIED after actual hardware testing.
+
+Each vehicle profile must therefore contain:
+
+verification_status:
+    unverified
+    bench_verified
+    vehicle_verified
+
+Do not claim universal vehicle compatibility.
+
+Use the phrase:
+
+"multi-protocol expandable vehicle interface"
+
+rather than:
+
+"works with every car."
+
+============================================================
+2. PRIMARY HARDWARE
+============================================================
+
+Main display/controller:
+
+Waveshare ESP32-S3 Touch LCD 5-inch
+Resolution: 1024 x 600
+ESP32-S3
+16 MB Flash
+8 MB PSRAM
+Touch display
+CAN interface
+TJA1051-family CAN transceiver
+7-36 V DC input
+microSD
+Wi-Fi
+BLE
+RTC
+external I2C
+
+Before assigning any GPIO:
+
+READ THE EXACT WAVESHARE SCHEMATIC.
+
+Create:
+
+docs/hardware/waveshare-pin-audit.md
+hardware/pinmap.csv
+
+The pin audit must document:
+
+GPIO
+existing Waveshare function
+whether available externally
+direction
+voltage level
+boot-strapping restrictions
+shared peripherals
+chosen RetroDrive function
+reason for selection
+
+Never invent a GPIO assignment.
+
+============================================================
+3. SYSTEM ARCHITECTURE
+============================================================
+
+Target architecture:
+
+ VEHICLE
+    |
+    |
+  vehicle connector / adapter harness
+    |
+    v
++------------------------------------------+
+| RETRODRIVE VEHICLE INTERFACE PCB         |
+|                                          |
+| Automotive power protection              |
+| CAN protection/routing                   |
+| K-Line transceiver                       |
+| OEM expansion interfaces                 |
+| ACC/IGN sense                            |
+| GNSS                                     |
+| IMU                                      |
+| warning audio                            |
+| expansion                                |
+| test points                              |
++-------------------+----------------------+
+                    |
+                    v
++------------------------------------------+
+| WAVESHARE ESP32-S3 TOUCH LCD 5           |
+|                                          |
+| ESP32-S3                                 |
+| 1024x600 LCD                             |
+| Touch                                    |
+| CAN transceiver                          |
+| BLE / Wi-Fi                              |
+| microSD                                  |
++------------------------------------------+
+
+The custom PCB must be a real vehicle-interface daughterboard, not merely
+a connector breakout.
+
+============================================================
+4. VEHICLE CONNECTOR PHILOSOPHY
+============================================================
+
+RetroDrive must support interchangeable vehicle harnesses.
+
+Primary harness:
+
+J1962 / OBD-II 16-pin male connector.
+
+Bring ALL 16 vehicle pins into the custom PCB.
+
+Do NOT connect all 16 pins directly to the ESP32.
+
+Classify them as follows:
+
+Pin 4:
+chassis ground
+
+Pin 5:
+signal ground
+
+Pin 16:
+vehicle battery
+
+Pins 6 / 14:
+CAN-H / CAN-L
+
+Pin 7:
+K-Line
+
+Pin 15:
+legacy L-Line / manufacturer-specific depending vehicle
+
+Pins 2 / 10:
+SAE J1850 provision
+
+Pins:
+1, 3, 8, 9, 11, 12, 13
+
+manufacturer-defined / expansion.
+
+Manufacturer-specific pins MUST NOT be directly driven by the MCU.
+
+They must go through:
+
+ESD protection
+series protection
+test point
+optional 0-ohm link / jumper
+future interface connection
+
+PCB Revision A should use configurable jumpers / 0-ohm links rather than
+an elaborate electronic switching matrix.
+
+Provide expansion capability for a future electronic vehicle-pin matrix.
+
+============================================================
+5. POWER SYSTEM
+============================================================
+
+Vehicle battery enters from J1962 pin 16 or the vehicle-specific harness.
+
+Develop a serious automotive power front end.
+
+Preferred architecture:
+
+VBAT
+ |
+ fuse
+ |
+ reverse polarity / ideal diode protection
+ |
+ automotive TVS
+ |
+ overvoltage / undervoltage / short-circuit protection
+ |
+ EMI input filter
+ |
+ protected VBAT
+ |
+ Waveshare 7-36 V input
+
+Preferred power protection controller:
+
+TI LM74900-Q1
+
+Do NOT blindly copy resistor values.
+
+Read the current manufacturer datasheet and calculate:
+
+UVLO threshold
+OVLO threshold
+current limit
+MOSFET ratings
+gate components
+TVS requirements
+power dissipation
+thermal margins.
+
+Use external automotive-rated MOSFETs suitable for the chosen topology.
+
+Design for a 12-V passenger vehicle electrical system.
+
+Document:
+
+normal battery range
+engine-running voltage
+cold-crank considerations
+reverse battery
+input surge strategy
+load-dump protection strategy
+quiescent current
+fuse sizing
+wire sizing.
+
+Do NOT claim ISO 7637 or ISO 16750 compliance unless actually tested.
+
+Instead maintain:
+
+docs/testing/automotive-transient-test-plan.md
+
+Include test conditions required before such a claim can be made.
+
+Add test points:
+
+TP_VBAT_RAW
+TP_VBAT_PROTECTED
+TP_VIN_DISPLAY
+TP_5V
+TP_3V3
+TP_GND
+TP_CAN_H
+TP_CAN_L
+TP_KLINE
+TP_ACC
+
+============================================================
+6. IGNITION / BATTERY-DRAIN STRATEGY
+============================================================
+
+Important:
+
+OBD pin 16 may remain powered when ignition is OFF.
+
+Therefore RetroDrive must not simply remain fully powered indefinitely.
+
+Provide an OPTIONAL ACC/IGN lead on the vehicle harness.
+
+Support:
+
+MODE A:
+ACC-controlled installation
+
+MODE B:
+OBD-only demonstration / development installation
+
+For ACC mode:
+
+sense automotive 12-V ACC safely using a protected input circuit.
+
+Provide a graceful shutdown mechanism:
+
+ACC OFF
+ ->
+ firmware notified
+ ->
+ save state/logs
+ ->
+ display shutdown
+ ->
+ main load power disabled where practical.
+
+Do not assume any standardized OBD pin provides ACC.
+
+Provide a documented manual/bench power option.
+
+Measure actual shutdown current.
+
+Do not invent a low-power specification before measurement.
+
+============================================================
+7. CAN INTERFACE
+============================================================
+
+The selected Waveshare already contains a TJA1051-family CAN transceiver.
+
+Use the onboard CAN transceiver unless a documented reason requires another.
+
+Vehicle:
+
+OBD pin 6 -> protected CAN-H -> Waveshare CAN-H
+OBD pin 14 -> protected CAN-L -> Waveshare CAN-L
+
+Add automotive CAN ESD protection close to the vehicle connector.
+
+Provide optional common-mode choke footprint if justified.
+
+CAN pair:
+
+route together
+minimize stubs
+avoid noisy switching power area
+use manufacturer PCB stackup for impedance calculation.
+
+IMPORTANT:
+
+Do NOT permanently add another 120-ohm termination resistor for vehicle use.
+
+Vehicle CAN networks are already terminated at the bus ends.
+
+Provide an optional:
+
+120-ohm termination
++
+jumper / solder bridge
+
+ONLY for standalone bench testing.
+
+Default manufacturing configuration:
+termination NOT populated / disabled.
+
+============================================================
+8. K-LINE INTERFACE
+============================================================
+
+Use:
+
+ST L9637D
+
+for ISO 9141 / K-Line electrical interfacing.
+
+Design directly from the ST datasheet.
+
+Connect:
+
+vehicle K-Line
+ ->
+ protection
+ ->
+ L9637 K
+ ->
+ L9637 RX/TX
+ ->
+ ESP32 UART
+
+Determine ESP32 logic compatibility from the L9637 VCC and Waveshare
+hardware configuration.
+
+Do not assume 5-V logic is safe for an ESP32.
+
+If level translation is required, implement it explicitly.
+
+Provide:
+
+K-Line test point
+UART debug test points
+series resistors / protection according to analysis.
+
+Initially connect K-Line routing to OBD pin 7.
+
+Provide jumper/configuration provisions for other manufacturer-specific
+routing where required.
+
+L-Line:
+
+Do NOT pretend L9637 provides an L-Line transmitter if it does not.
+
+The L9637 LI/LO functions must be understood from the datasheet.
+
+If active L-Line initialization is later required, create a separate
+documented driver circuit.
+
+============================================================
+9. MINI 1998 PROFILE
+============================================================
+
+This is a PRIORITY profile.
+
+Vehicle:
+
+1998 Rover Mini MPi
+MEMS 2J
+
+Physical diagnostic layer:
+
+K-Line
+
+Protocol characteristics to implement from verified documentation:
+
+K-Line single-wire communication
+10400 baud
+8 data bits
+1 stop bit
+no parity
+5-baud initialization OR fast initialization
+KWP2000-style packet communication
+transmitted bytes may be echoed
+
+Do not copy random forum implementations.
+
+Use:
+
+Rover MEMS technical documentation
+and available open implementations
+
+as engineering references.
+
+Create:
+
+firmware/components/vehicle_profiles/mini_mems2j/
+
+including:
+
+mini_mems2j_profile.cpp
+mini_mems2j_profile.h
+mini_mems2j_protocol.cpp
+mini_mems2j_protocol.h
+mini_mems2j_pids.cpp
+mini_mems2j_faults.cpp
+README.md
+tests/
+
+Implement read-only diagnostics first.
+
+Required initial functionality:
+
+connection
+ECU identification
+live data
+RPM
+coolant temperature
+intake air temperature
+throttle
+MAP if exposed
+vehicle speed if exposed
+lambda information if exposed
+fault code reading
+data logging
+
+Only expose parameters that have been verified.
+
+Unsupported fields must be hidden, not shown as misleading zero values.
+
+Do NOT initially implement ECU programming/remapping.
+
+Do NOT expose calibration-write commands.
+
+Do NOT expose potentially dangerous actuator tests in normal driving UI.
+
+============================================================
+10. GENERIC CAN OBD-II PROFILE
+============================================================
+
+Implement ISO 15765-4 CAN discovery.
+
+Support candidate standard configurations:
+
+11-bit / 500 kbit/s
+29-bit / 500 kbit/s
+11-bit / 250 kbit/s
+29-bit / 250 kbit/s
+
+Implement:
+
+Service 01 live-data requests
+Service 03 DTC requests
+Service 04 only behind explicit diagnostics safety confirmation if included
+Service 09 VIN/information requests
+supported PID discovery
+
+Start supported-PID discovery at PID 00 and continue through capability
+ranges only when indicated by the previous bitmap.
+
+Do not poll unsupported PIDs.
+
+Implement adaptive polling.
+
+Fast parameters:
+RPM
+speed
+throttle
+
+Medium:
+MAP
+load
+MAF
+
+Slow:
+coolant
+IAT
+voltage
+fuel-level etc.
+
+Exact rates must be configurable.
+
+Do not overload a vehicle bus.
+
+============================================================
+11. VEHICLE DISCOVERY ENGINE
+============================================================
+
+Create:
+
+VehicleLinkManager
+
+Architecture:
+
+VehicleLinkManager
+ |
+ +-- VehicleFingerprintManager
+ +-- ProtocolDetector
+ |    +-- CANDetector
+ |    +-- KLineDetector
+ |    +-- future J1850Detector
+ |
+ +-- GenericOBDEngine
+ |
+ +-- VINResolver
+ |
+ +-- VehicleProfileManager
+ |
+ +-- TelemetryManager
+ |
+ +-- DiagnosticManager
+
+Startup logic:
+
+1. inspect stored vehicle fingerprint
+2. try last-known communication method
+3. validate response
+4. if valid, reconnect quickly
+5. otherwise run safe protocol search
+6. establish generic diagnostic link where possible
+7. request VIN where supported
+8. discover supported data
+9. compare against known vehicle profiles
+10. request user confirmation
+11. fall back to Generic OBD mode when exact model is unknown
+
+A failed VIN request must NOT prevent generic OBD operation.
+
+Vehicle fingerprint may contain:
+
+VIN
+selected vehicle profile
+protocol
+CAN bitrate
+CAN ID format
+ECU responder IDs
+supported PID bitmap
+ECU identification
+profile version
+
+Never identify a vehicle based on one weak heuristic.
+
+============================================================
+12. VEHICLE PROFILE SYSTEM
+============================================================
+
+Vehicle profiles must be data-driven.
+
+Create a schema such as:
+
+vehicle_profiles/
+    generic_can/
+    mini_mems2j/
+    altezza_sxe10/
+    subaru_gc8/
+    mitsubishi_mut/
+    defender_td5/
+
+Each profile should define:
+
+profile_id
+manufacturer
+model
+generation
+year range
+engine
+transmission variants
+verification status
+physical interface
+vehicle connector
+diagnostic pins
+protocol
+initialization procedure
+supported parameters
+parameter conversion functions
+warning configuration
+dashboard capability set
+display theme
+media theme
+boot theme
+
+Critical rule:
+
+Do not invent undocumented protocol parameters.
+
+Every non-standard parameter definition must include:
+
+source
+verification status
+raw-message description
+conversion equation
+units
+observed range
+last verified vehicle.
+
+============================================================
+13. ALTEZZA PROFILE
+============================================================
+
+Create an Altezza SXE10 profile framework.
+
+Do NOT assume every Altezza variant uses identical diagnostics.
+
+Profile must distinguish at minimum:
+
+SXE10 / RS200 / 3S-GE
+GXE10 / AS200 / 1G-FE
+model year
+manual / automatic where relevant
+
+Do not finalize diagnostic pins or messages without source validation.
+
+Current profile should therefore be allowed to remain:
+
+verification_status: unverified
+
+until tested against the target vehicle.
+
+============================================================
+14. FUTURE PROTOCOL HARDWARE
+============================================================
+
+J1850:
+
+OBD pins 2 and 10 must be brought through protection to test pads /
+expansion header.
+
+Actual J1850 PHY may be marked DNP for Revision A.
+
+Do not fake support in software.
+
+Subaru GC8:
+
+provide protected OEM pin access and profile framework.
+
+Mitsubishi MUT:
+
+provide protected OEM pin access and profile framework.
+
+Do NOT drive manufacturer-specific vehicle pins until exact vehicle
+electrical documentation has been verified.
+
+============================================================
+15. GNSS
+============================================================
+
+Use:
+
+Quectel LC76G family / Waveshare LC76G implementation
+
+Preferred communication:
+
+I2C or UART according to verified available Waveshare pins.
+
+Support:
+
+latitude
+longitude
+GNSS speed
+heading while moving
+altitude
+UTC time
+satellite count
+fix quality
+HDOP if available
+
+Implement:
+
+trip tracking
+breadcrumb recording
+parking location
+return-to-start guidance
+waypoints
+expedition log.
+
+Store trails efficiently on microSD.
+
+A breadcrumb record should contain approximately:
+
+timestamp
+latitude
+longitude
+altitude
+speed
+heading
+
+Recording policy should be configurable by:
+
+distance
+time
+movement state.
+
+Do NOT claim return-to-start generates a terrain-safe path.
+
+It follows recorded/bearing information only.
+
+============================================================
+16. IMU
+============================================================
+
+Do NOT use MPU6050 as the default production BOM part.
+
+Select a current-production IMU after checking availability and lifecycle.
+
+Preferred candidate:
+
+ICM-42688-P or another justified current production component.
+
+Provide:
+
+accelerometer
+gyroscope
+pitch
+roll
+calibration
+zero function
+low-pass filtering
+stationary calibration.
+
+Optionally provide footprint/header support for a magnetometer.
+
+Pitch/roll values are informational.
+
+Do NOT display a universal "safe rollover angle."
+
+Allow vehicle-specific configurable caution markers and label them
+informational.
+
+============================================================
+17. WARNING AUDIO
+============================================================
+
+Provide independent warning audio.
+
+Preferred architecture:
+
+ESP32-S3
+ ->
+ I2S
+ ->
+ MAX98357A or justified equivalent
+ ->
+ 4-ohm speaker
+
+Use warning tones for:
+
+critical coolant condition
+critical voltage
+connection fault
+navigation alert
+user-configured threshold.
+
+Warning sounds must work without phone connection.
+
+Provide software priority/ducking architecture.
+
+Media playback is secondary.
+
+============================================================
+18. PCB DESIGN
+============================================================
+
+Use KiCad.
+
+Repository must contain editable source files.
+
+Recommended board:
+
+4-layer PCB
+
+Suggested stack:
+
+L1:
+components + critical signals
+
+L2:
+continuous GND reference
+
+L3:
+power distribution + low-speed signals
+
+L4:
+signals
+
+Actual stackup must be based on chosen PCB manufacturer's data.
+
+Do not invent impedance values without the stackup.
+
+PCB zones:
+
+A. vehicle connector / transient protection
+B. power protection
+C. CAN
+D. K-Line
+E. OEM expansion
+F. low-noise sensors
+G. GNSS
+H. audio
+I. Waveshare connectors
+
+Placement rules:
+
+TVS close to vehicle connector
+
+power protection close to vehicle connector
+
+large current loops short
+
+switching nodes compact
+
+CAN pair together
+
+K-Line away from switching nodes where practical
+
+GNSS and antenna area away from power noise
+
+IMU positioned away from high-vibration speaker and board-edge stress
+where practical
+
+decoupling directly adjacent to device pins
+
+solid ground plane
+
+no arbitrary ground-plane slicing.
+
+Separate OBD chassis ground and signal ground at the connector and join
+using a deliberately documented net-tie / grounding strategy.
+
+Provide mounting holes.
+
+Provide clear silkscreen labels.
+
+Provide polarity labels.
+
+Provide connector pin-1 indication.
+
+Provide board revision marking.
+
+Provide accessible test points.
+
+Run:
+
+ERC
+DRC
+
+before every manufacturing release.
+
+No release may contain unexplained ERC/DRC errors.
+
+============================================================
+19. SCHEMATIC SHEETS
+============================================================
+
+Organize KiCad schematic hierarchically.
+
+Required sheets:
+
+00_top.kicad_sch
+01_vehicle_connector.kicad_sch
+02_power_protection.kicad_sch
+03_can_interface.kicad_sch
+04_kline_interface.kicad_sch
+05_oem_expansion.kicad_sch
+06_acc_power_control.kicad_sch
+07_gnss.kicad_sch
+08_imu.kicad_sch
+09_audio.kicad_sch
+10_waveshare_interface.kicad_sch
+11_testpoints.kicad_sch
+
+Each sheet must contain engineering notes.
+
+============================================================
+20. BOM
+============================================================
+
+Create:
+
+hardware/bom/retrodrive-bom.csv
+
+Columns:
+
+Reference
+Quantity
+Description
+Manufacturer
+MPN
+Package
+Automotive grade
+AEC qualification
+Lifecycle status
+Supplier 1
+Supplier 2
+Unit price 1
+Unit price 10
+Unit price 100
+DNP status
+Alternative part
+Reason
+Notes
+
+Do NOT fabricate current prices.
+
+If sourcing data is unavailable:
+
+mark it TBD.
+
+Separate:
+
+prototype BOM
+production-intent BOM.
+
+============================================================
+21. EXISTING LAPTOP INTERFACE
+============================================================
+
+THIS IS CRITICAL.
+
+Before rewriting UI code:
+
+1. inspect the current laptop interface completely
+2. run it
+3. map all screens
+4. map all controls
+5. identify the current mock telemetry format
+6. identify reusable components
+7. identify CSS/design tokens
+8. document weaknesses
+9. preserve good work
+10. refactor rather than restart unnecessarily
+
+Create:
+
+docs/ui/existing-interface-audit.md
+
+The current laptop interface becomes:
+
+apps/simulator-web/
+
+Refactor data access behind:
+
+TelemetrySource
+
+with implementations:
+
+MockTelemetrySource
+RecordedTelemetrySource
+WebSocketTelemetrySource
+DeviceBridgeTelemetrySource
+
+The visual layer must not directly generate random telemetry.
+
+Simulation and presentation must be separated.
+
+============================================================
+22. COMMON TELEMETRY MODEL
+============================================================
+
+Create a platform-independent telemetry schema.
+
+Example:
+
+VehicleState {
+    timestamp
+    connectionState
+    vehicleProfile
+    ignition
+    engineRunning
+
+    rpm
+    speedKph
+
+    coolantC
+    intakeAirC
+
+    throttlePct
+    engineLoadPct
+
+    mapKpa
+    mafGps
+
+    shortFuelTrimPct
+    longFuelTrimPct
+
+    lambda
+
+    batteryVoltage
+
+    fuelLevelPct
+
+    oilTemperatureC
+    oilPressureKpa
+
+    boostKpa
+
+    gps {
+        fix
+        latitude
+        longitude
+        altitudeM
+        speedKph
+        headingDeg
+        satellites
+    }
+
+    imu {
+        pitchDeg
+        rollDeg
+        accel
+        gyro
+    }
+
+    diagnostics {
+        mil
+        dtcs
+    }
+}
+
+All fields must include validity state.
+
+Never confuse:
+
+0
+
+with:
+
+not supported / unavailable.
+
+Use:
+
+value
+valid
+source
+ageMs
+
+where appropriate.
+
+============================================================
+23. EMBEDDED UI
+============================================================
+
+Target:
+
+1024 x 600
+5-inch landscape display
+
+Use LVGL unless the existing Waveshare display stack strongly requires
+another justified framework.
+
+UI must be performant on ESP32-S3.
+
+No desktop-style interface.
+
+Large glanceable information.
+
+Touch targets appropriate for vehicle use.
+
+Required top-level modes:
+
+Dashboard
+Diagnostics
+Navigation
+Expedition
+Media
+Vehicle
+Settings
+
+Themes:
+
+1. 90s Performance
+2. Classic Analogue
+3. Expedition
+4. future vehicle-specific themes
+
+Vehicle profile decides which gauges are appropriate.
+
+Do NOT show Boost on a naturally aspirated vehicle unless an external
+boost sensor/profile enables it.
+
+Unsupported data must either:
+
+disappear
+or be replaced with a supported metric.
+
+No permanent "--" everywhere.
+
+============================================================
+24. 90s PERFORMANCE UI
+============================================================
+
+Primary hierarchy:
+
+speed
+RPM
+boost or MAP/load
+coolant
+oil
+voltage
+IAT
+fuel
+
+Visual inspiration:
+
+period Japanese GT instrumentation
+early electronic clusters
+1990s tuner instrumentation
+
+Do NOT copy copyrighted game graphics or manufacturer dashboards.
+
+Create original graphics inspired by the era.
+
+============================================================
+25. CLASSIC ANALOGUE UI
+============================================================
+
+Use:
+
+round gauges
+subtle chrome bezels
+period typography
+mechanical-style odometer
+classic needles
+black / ivory / restrained green illumination.
+
+Needle movement must be filtered.
+
+Use physically plausible damping.
+
+Do not make it cartoonish.
+
+============================================================
+26. EXPEDITION UI
+============================================================
+
+Prioritize:
+
+heading
+speed
+altitude
+trip
+breadcrumb
+pitch
+roll
+coolant
+voltage
+fuel
+range where possible.
+
+Include:
+
+mark waypoint
+mark camp
+mark vehicle
+return to start
+save trail
+load trail
+reset trip
+inclinometer zero.
+
+============================================================
+27. RETRO NAVIGATION UI
+============================================================
+
+Road navigation runs primarily on the phone.
+
+The phone performs:
+
+route calculation
+map-network processing
+road-name selection
+route simplification.
+
+ESP32 receives compact vectors/state.
+
+Do not transmit map screenshots.
+
+Protocol should support:
+
+navigationActive
+latitude
+longitude
+headingDeg
+speedKph
+maneuver
+distanceToManeuverM
+remainingDistanceM
+remainingTimeS
+currentRoad
+nextRoad
+routePoints
+nearbyRoadSegments
+rerouting
+destinationReached
+
+Separate:
+
+fast position/state updates
+
+from:
+
+slow route geometry updates.
+
+Render a deliberately low-detail period digital map.
+
+Use a low logical resolution such as:
+
+320 x 188
+
+and scale cleanly to 1024 x 600 where visually appropriate.
+
+Provide:
+
+heading-up
+north-up
+zoom
+recenter
+mute
+waypoints.
+
+============================================================
+28. MOBILE APPLICATION
+============================================================
+
+Use Flutter unless a technical blocker justifies another stack.
+
+Target:
+
+Android
+iOS
+
+Android may be completed first but architecture must remain cross-platform.
+
+Screens:
+
+Onboarding
+Vehicle garage
+Connection
+Home
+Live data
+Diagnostics
+Navigation
+Trips
+Expedition
+Media
+Settings
+Firmware update
+About
+
+The mobile application must use the same vehicle-profile schema.
+
+Vehicle selection:
+
+Manufacturer
+Model
+Generation
+Year
+Engine
+Transmission
+
+Also offer:
+
+AUTO DETECT
+
+Connection flow:
+
+Connect device
+ ->
+ Try stored vehicle profile
+ ->
+ Auto protocol detection
+ ->
+ VIN where supported
+ ->
+ profile suggestion
+ ->
+ user confirmation.
+
+============================================================
+29. BLE PROTOCOL
+============================================================
+
+Define a versioned RetroDrive BLE protocol.
+
+Do not send arbitrary JSON at high frequency without analyzing bandwidth.
+
+Create compact binary packets for fast telemetry.
+
+Suggested logical services:
+
+Device Information
+Vehicle Connection
+Telemetry
+Diagnostics
+Navigation
+Trip
+Settings
+Media
+Firmware Update
+
+Document all packet layouts.
+
+Include:
+
+protocol version
+message ID
+payload length
+timestamp / sequence
+payload
+CRC where justified.
+
+Create:
+
+docs/protocols/retrodrive-ble-protocol.md
+
+and machine-readable definitions.
+
+============================================================
+30. WI-FI / OTA
+============================================================
+
+Provide secure firmware update support.
+
+Requirements:
+
+signed firmware
+version checking
+rollback support where ESP32 partitioning permits
+failed update recovery.
+
+Never hardcode Wi-Fi credentials.
+
+Secrets must never enter Git.
+
+============================================================
+31. DIAGNOSTICS ENGINE
+============================================================
+
+Safety-critical warnings run locally on ESP32.
+
+Phone/cloud AI is optional.
+
+Local system handles:
+
+DTC detection
+warning thresholds
+trend calculations
+baseline comparison
+sensor validity
+connection failure.
+
+Diagnostics UI must distinguish:
+
+Measured data
+
+Calculated data
+
+Rule-based inference
+
+Possible cause
+
+Confirmed DTC
+
+Example wording:
+
+"Fuel-trim pattern is consistent with possible unmetered air."
+
+NOT:
+
+"Your vehicle has a vacuum leak."
+
+============================================================
+32. AI FUNCTION
+============================================================
+
+AI must NOT be required for:
+
+coolant warnings
+oil warnings
+voltage warnings
+vehicle communication
+navigation fallback
+DTC detection.
+
+AI may be used on the phone to explain:
+
+DTC
+freeze frame
+live data
+recent trends.
+
+Create a provider abstraction:
+
+DiagnosticExplanationProvider
+
+with:
+
+LocalRuleProvider
+MockAIProvider
+optional cloud provider
+
+No API keys in repository.
+
+============================================================
+33. MEDIA
+============================================================
+
+Media UI should reproduce the density and character of period head units
+without copying trademarks or copyrighted assets.
+
+Themes:
+
+EQ Deck 89
+DSP Receiver 92
+CD Tuner 95
+MD Dot Matrix 98
+Heritage Radio
+Expedition Receiver
+
+Include:
+
+spectrum analyzer
+peak hold
+source
+track
+elapsed time
+EQ
+DSP
+repeat
+random
+scan
+loudness indicators.
+
+Actual audio forwarding is a stretch goal.
+
+Warning audio remains independent.
+
+============================================================
+34. BOOT EXPERIENCE
+============================================================
+
+Vehicle profile selects boot animation.
+
+Sequence:
+
+black screen
+ ->
+ RetroDrive mark
+ ->
+ vehicle-themed original artwork
+ ->
+ system checks
+ ->
+ gauge/self-test
+ ->
+ connection
+ ->
+ dashboard
+
+Do NOT use manufacturer logos without permission.
+
+Do NOT extract graphics from commercial games.
+
+All vehicle artwork must be original.
+
+============================================================
+35. DATA LOGGING
+============================================================
+
+Implement microSD logging.
+
+Format:
+
+CSV for simple export
+optional binary format for high-rate data
+
+Record:
+
+timestamp
+vehicle
+protocol
+selected telemetry
+GPS
+IMU
+diagnostic events
+warnings.
+
+Avoid excessive SD writes.
+
+Implement buffering.
+
+Handle SD removal/failure safely.
+
+============================================================
+36. SIMULATION / TEST TOOLS
+============================================================
+
+Create:
+
+tools/vehicle-simulator/
+
+Support:
+
+Generic CAN OBD simulation
+recorded telemetry replay
+fault injection
+temperature ramps
+voltage drops
+RPM sweeps
+GPS routes
+IMU motion.
+
+Where possible use Linux SocketCAN / vcan for automated CAN testing.
+
+Create a PC bridge that allows the existing laptop UI to receive the same
+telemetry schema as the actual device.
+
+============================================================
+37. FIRMWARE ARCHITECTURE
+============================================================
+
+Preferred:
+
+ESP-IDF
+
+Pin exact versions.
+
+Use FreeRTOS tasks thoughtfully.
+
+Suggested modules:
+
+platform/
+drivers/
+vehicle/
+protocols/
+telemetry/
+diagnostics/
+navigation/
+storage/
+ble/
+wifi/
+ui/
+audio/
+system/
+tests/
+
+Suggested tasks:
+
+VehicleIO
+Telemetry
+GNSS
+IMU
+BLE
+Storage
+UI
+Diagnostics
+PowerManager
+
+Do not create unnecessary high-priority tasks.
+
+Measure stack usage.
+
+Use watchdogs.
+
+Handle communication timeouts.
+
+============================================================
+38. SOFTWARE QUALITY
+============================================================
+
+No giant monolithic files.
+
+No magic numbers.
+
+No unexplained globals.
+
+No blocking delays in vehicle communication.
+
+Use:
+
+state machines
+timeouts
+queues
+event groups
+ring buffers where appropriate.
+
+Protocol code must be independently testable.
+
+Conversion functions must have unit tests.
+
+============================================================
+39. REPOSITORY STRUCTURE
+============================================================
+
+Create approximately:
+
+retrodrive/
+|
++-- README.md
++-- LICENSE
++-- CONTRIBUTING.md
++-- CHANGELOG.md
++-- ROADMAP.md
++-- SECURITY.md
++-- .gitignore
++-- .editorconfig
+|
++-- docs/
+|   +-- architecture/
+|   +-- hardware/
+|   +-- protocols/
+|   +-- vehicles/
+|   +-- ui/
+|   +-- manufacturing/
+|   +-- testing/
+|   +-- safety/
+|
++-- hardware/
+|   +-- kicad/
+|   |   +-- retrodrive-interface/
+|   +-- bom/
+|   +-- datasheets/
+|   +-- calculations/
+|   +-- manufacturing/
+|   +-- 3d/
+|
++-- firmware/
+|   +-- main/
+|   +-- components/
+|   |   +-- vehicle_link/
+|   |   +-- generic_obd/
+|   |   +-- kline/
+|   |   +-- vehicle_profiles/
+|   |   +-- gnss/
+|   |   +-- imu/
+|   |   +-- diagnostics/
+|   |   +-- navigation/
+|   |   +-- storage/
+|   |   +-- ble/
+|   |   +-- ui/
+|   |   +-- audio/
+|   |   +-- power/
+|   +-- test/
+|
++-- apps/
+|   +-- mobile/
+|   +-- simulator-web/
+|
++-- shared/
+|   +-- schemas/
+|   +-- themes/
+|   +-- vehicle-profiles/
+|   +-- protocol/
+|
++-- tools/
+|   +-- vehicle-simulator/
+|   +-- telemetry-bridge/
+|   +-- log-analyzer/
+|   +-- manufacturing/
+|
++-- enclosure/
+|   +-- cad/
+|   +-- drawings/
+|   +-- prototypes/
+|
++-- tests/
+|   +-- unit/
+|   +-- integration/
+|   +-- hil/
+|   +-- recordings/
+|
++-- scripts/
+|
++-- .github/
+    +-- workflows/
+    +-- ISSUE_TEMPLATE/
+    +-- pull_request_template.md
+
+============================================================
+40. ENCLOSURE
+============================================================
+
+Design around the physical Waveshare 5-inch board.
+
+Requirements:
+
+compact
+period-appropriate appearance
+serviceable
+screen visible
+speaker opening
+GNSS antenna provision
+USB/service access
+vehicle connector access
+ventilation
+mounting points
+no cable strain on PCB connectors.
+
+Provide:
+
+STEP
+editable CAD
+STL for prototype printing
+dimension drawing
+exploded view
+assembly instructions.
+
+Do not fabricate mechanical dimensions.
+
+Extract them from manufacturer drawings or measured hardware.
+
+============================================================
+41. PCB MANUFACTURING OUTPUT
+============================================================
+
+For each manufacturing release generate:
+
+Gerbers
+drill files
+IPC netlist if useful
+BOM
+pick-and-place
+assembly drawings
+schematic PDF
+PCB PDF
+3D STEP
+fab notes
+revision history.
+
+Create a release checklist.
+
+============================================================
+42. HARDWARE CALCULATIONS
+============================================================
+
+Create documented calculations for:
+
+power budget
+fuse size
+trace current
+MOSFET dissipation
+reverse protection
+TVS energy
+input capacitors
+EMI filter
+CAN routing
+K-Line loading
+ACC sense
+audio amplifier
+thermal estimate.
+
+Clearly separate:
+
+calculated
+simulated
+measured.
+
+Never replace measured values with assumptions.
+
+============================================================
+43. TEST PLAN
+============================================================
+
+Create a requirement-to-test traceability matrix.
+
+Required tests include:
+
+Power:
+power-on
+power-off
+current draw
+9 V
+10 V
+12 V
+13.8 V
+14.4 V
+16 V bench sweep
+reverse polarity with controlled current-limited setup
+brownout
+repeated power cycles
+ACC shutdown
+battery drain.
+
+CAN:
+USB-CAN bench connection
+11-bit
+29-bit
+250 kbit/s
+500 kbit/s
+reconnect
+bus loss
+malformed frames.
+
+OBD:
+PID discovery
+unsupported PID
+multiple ECU response
+DTC reading
+VIN reading.
+
+K-Line:
+initialization
+10400 baud communication
+echo handling
+timeout
+reconnect
+Mini MEMS 2J live data.
+
+GNSS:
+cold start
+warm start
+satellite loss
+reacquisition
+trip logging.
+
+IMU:
+flat calibration
+pitch
+roll
+drift
+vibration filtering.
+
+BLE:
+pair
+disconnect
+reconnect
+range
+packet loss.
+
+UI:
+boot
+touch
+theme switch
+missing sensors
+warning overlay
+night mode.
+
+Storage:
+SD absent
+SD full
+power removed during logging.
+
+Thermal:
+extended operation
+full backlight
+Wi-Fi/BLE active
+logging active.
+
+Enclosure:
+fit
+cable strain
+mount rigidity
+thermal inspection.
+
+============================================================
+44. BENCH DEVELOPMENT ORDER
+============================================================
+
+PHASE 1
+
+Run existing laptop simulator.
+
+Document current UI.
+
+PHASE 2
+
+Bring up Waveshare board over USB only.
+
+Run embedded display.
+
+PHASE 3
+
+Test CAN with USB-CAN adapter.
+
+No vehicle power yet.
+
+PHASE 4
+
+Implement Generic CAN OBD simulator.
+
+PHASE 5
+
+Build automotive power front end.
+
+Test with current-limited bench supply.
+
+PHASE 6
+
+Connect only CAN + ground to an actual compatible vehicle while powering
+device separately if necessary.
+
+PHASE 7
+
+Enable vehicle power input.
+
+PHASE 8
+
+Implement L9637 K-Line hardware.
+
+PHASE 9
+
+Bench-test K-Line.
+
+PHASE 10
+
+Test Mini MEMS 2J.
+
+PHASE 11
+
+Integrate GNSS / IMU.
+
+PHASE 12
+
+Integrate BLE phone application.
+
+PHASE 13
+
+Design/fabricate PCB.
+
+PHASE 14
+
+HIL and vehicle validation.
+
+PHASE 15
+
+Freeze enclosure.
+
+============================================================
+45. SAFETY RULES
+============================================================
+
+Normal RetroDrive operation is READ-ONLY.
+
+No ECU programming.
+
+No calibration writing.
+
+No immobilizer commands.
+
+No airbag actuation.
+
+No ABS actuation.
+
+No injector/ignition actuation while driving.
+
+Any future service commands must exist in a physically stationary,
+explicit service mode and require deliberate confirmation.
+
+The display must never interfere with ECU traffic more than required.
+
+Do not continuously broadcast unnecessary diagnostic requests.
+
+Implement bus-load limits.
+
+============================================================
+46. GIT WORKFLOW
+============================================================
+
+Use feature branches.
+
+Commit small logical changes.
+
+Examples:
+
+feat(hw): add K-Line interface schematic
+feat(obd): implement supported PID discovery
+feat(mini): add MEMS2J initialization state machine
+feat(ui): port performance dashboard to LVGL
+feat(app): add vehicle garage
+test(can): add ISO15765 simulator
+docs(hw): add power budget calculations
+
+Never commit:
+
+build directories
+API keys
+Wi-Fi passwords
+private keys
+temporary KiCad lock files
+large generated binaries unless release assets.
+
+Use semantic versioning.
+
+============================================================
+47. CI/CD
+============================================================
+
+GitHub Actions should:
+
+build ESP32 firmware
+run firmware unit tests where supported
+lint C/C++
+build Flutter app
+run Flutter tests
+build web simulator
+run web tests
+run Python simulator tests
+run schema validation
+run KiCad ERC where CI tooling allows
+run KiCad DRC where possible.
+
+Release workflow should generate manufacturing artifacts only from a
+tagged hardware release.
+
+============================================================
+48. DOCUMENTATION
+============================================================
+
+README must let a new engineer understand:
+
+what RetroDrive is
+current maturity
+supported vehicles
+unverified vehicles
+hardware architecture
+how to build firmware
+how to run simulator
+how to build mobile app
+how to perform bench testing.
+
+Create:
+
+docs/architecture/system-overview.md
+
+docs/hardware/power.md
+
+docs/hardware/can.md
+
+docs/hardware/kline.md
+
+docs/hardware/oem-expansion.md
+
+docs/protocols/generic-obd.md
+
+docs/protocols/mems2j.md
+
+docs/vehicles/mini-1998-mpi.md
+
+docs/vehicles/altezza-sxe10.md
+
+docs/testing/verification-matrix.md
+
+docs/manufacturing/assembly.md
+
+============================================================
+49. COST MODEL
+============================================================
+
+Create:
+
+hardware/bom/cost-model.csv
+
+Separate:
+
+one-off prototype
+10 units
+100 units
+1000 units
+
+Categories:
+
+display/controller
+vehicle PCB
+connectors
+harness
+GNSS
+IMU
+speaker/audio
+enclosure
+PCB fabrication
+assembly
+packaging
+test
+allowance for manufacturing losses.
+
+Do NOT invent market prices.
+
+Use sourced prices when available and record:
+
+supplier
+date
+quantity
+currency.
+
+============================================================
+50. EE356 PROJECT REQUIREMENTS
+============================================================
+
+The university project must visibly demonstrate:
+
+electronic product design methodology
+power-system sizing
+worst-case analysis
+noise mitigation
+signal integrity
+PCB design
+grounding
+decoupling
+enclosure design
+thermal considerations
+manufacturing
+assembly
+testing
+reliability
+cost analysis.
+
+Therefore maintain an engineering decision log.
+
+Every important design choice must include:
+
+requirement
+alternatives
+selected solution
+reason
+calculation/evidence
+validation method.
+
+============================================================
+51. DEFINITION OF DONE FOR V1
+============================================================
+
+V1 is complete only when:
+
+[ ] Existing simulator is refactored and functional
+
+[ ] Waveshare display boots reliably
+
+[ ] Embedded dashboard runs at acceptable frame rate
+
+[ ] Custom vehicle-interface schematic passes ERC
+
+[ ] PCB passes DRC
+
+[ ] BOM exists
+
+[ ] manufacturing files can be generated
+
+[ ] protected 12-V supply works on bench
+
+[ ] CAN communication works on bench
+
+[ ] Generic CAN OBD works on a real vehicle
+
+[ ] supported PID discovery works
+
+[ ] DTC reading works
+
+[ ] GNSS works
+
+[ ] IMU pitch/roll works
+
+[ ] BLE phone link works
+
+[ ] phone displays live data
+
+[ ] 1998 Mini MEMS 2J connection has at minimum a documented,
+    testable implementation
+
+[ ] Mini connection is vehicle-tested if the vehicle is available
+
+[ ] data logging works
+
+[ ] enclosure prototype fits
+
+[ ] verification report exists
+
+[ ] costed BOM exists
+
+[ ] setup/build instructions work on a clean development machine.
+
+============================================================
+52. INITIAL EXECUTION INSTRUCTIONS
+============================================================
+
+DO NOT immediately start rewriting the project.
+
+First perform an audit.
+
+Step 1:
+Print the current repository tree.
+
+Step 2:
+Identify the existing laptop interface.
+
+Step 3:
+Run it.
+
+Step 4:
+Document its architecture.
+
+Step 5:
+Identify incomplete/mock functionality.
+
+Step 6:
+Inspect the Waveshare hardware documentation.
+
+Step 7:
+Create hardware pin audit.
+
+Step 8:
+Create docs/architecture/system-overview.md.
+
+Step 9:
+Create REQUIREMENTS.md.
+
+Step 10:
+Create ROADMAP.md.
+
+Step 11:
+Propose the initial KiCad architecture.
+
+Step 12:
+Propose the firmware architecture.
+
+Step 13:
+Propose how the existing laptop UI will be reused.
+
+Only then begin implementation.
+
+============================================================
+53. CRITICAL ENGINEERING BEHAVIOUR
+============================================================
+
+Do not hallucinate component specifications.
+
+Do not hallucinate vehicle protocols.
+
+Do not invent ECU commands.
+
+Do not invent connector pinouts.
+
+Do not invent PCB dimensions.
+
+Do not invent part availability.
+
+Do not invent measurement results.
+
+Whenever information is uncertain, mark:
+
+ASSUMPTION
+NEEDS VERIFICATION
+DNP
+UNVERIFIED VEHICLE PROFILE
+
+as appropriate.
+
+Use primary manufacturer datasheets wherever possible.
+
+For vehicle-specific information, maintain source references.
+
+Prefer a functioning, testable implementation over unnecessary abstraction.
+
+Preserve the existing RetroDrive design direction.
+
+The end product must feel like a coherent automotive product, not an
+engineering-development screen.
+
+============================================================
+54. FIRST DELIVERABLE
+============================================================
+
+Before writing major new code, return the following:
+
+A. Current repository audit
+B. Proposed final repository tree
+C. Existing UI reuse plan
+D. Hardware block diagram
+E. Complete Rev-A schematic architecture
+F. GPIO allocation table
+G. Initial BOM
+H. Vehicle support matrix
+I. Firmware architecture
+J. Mobile-app architecture
+K. BLE message architecture
+L. 8-week implementation plan
+M. Main technical risks
+N. First 10 Git issues to execute
+
+Then begin implementation in dependency order.
+
+Do not wait for permission after every trivial step.
+
+Stop and request clarification only for genuine blocking choices that
+cannot be safely inferred from the existing project, hardware
+documentation or stated requirements.
