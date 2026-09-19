@@ -3,7 +3,9 @@ export type SpeedUnit = 'KPH' | 'MPH'
 export type TempUnit = 'C' | 'F'
 export type BoostUnit = 'BAR' | 'PSI'
 
-export type ClusterLayoutId = 'JDM_DIGITAL_86' | 'EURO_DIGITAL_89' | 'JDM_GT_93' | 'TOURING_96' | 'CLASSIC_ELECTRONIC' | 'CLASSIC_ROADSTER_60' | 'GRAND_TOURING_62' | 'MINI_HERITAGE' | 'VINTAGE_TOURER' | 'CRT_ELECTRONIC'
+export type ClusterLayoutId = 'JDM_DIGITAL_86' | 'EURO_DIGITAL_89' | 'JDM_GT_93' | 'TOURING_96' | 'CLASSIC_ELECTRONIC' | 'CLASSIC_ROADSTER_60' | 'GRAND_TOURING_62' | 'MINI_HERITAGE' | 'VINTAGE_TOURER' | 'CRT_ELECTRONIC' | 'EXPEDITION_60' | 'UTILITY_80' | 'RALLY_RAID_90' | 'TOURING_95'
+
+export type VehicleCategory = 'SPORT_COMPACT' | 'GT' | 'RALLY' | 'CLASSIC' | 'EXPEDITION' | 'UTILITY_4X4'
 
 export type AuxSlotValue =
   | 'BOOST'
@@ -233,6 +235,74 @@ export const VEHICLE_PRESETS: VehicleProfile[] = [
     boostWarningBar: 0,
     boostCriticalBar: 0,
   },
+  {
+    id: 'landcruiser90s',
+    nickname: 'LAND CRUISER 90',
+    manufacturer: 'Independent',
+    model: 'Touring Wagon 4x4',
+    year: 1995,
+    engine: '1FZ-FE',
+    fuelType: 'Petrol',
+    redlineRpm: 5200,
+    speedUnit: 'KPH',
+    tempUnit: 'C',
+    isTurbocharged: false,
+    boostUnit: 'BAR',
+    maxBoostBar: 0,
+    boostWarningBar: 0,
+    boostCriticalBar: 0,
+  },
+  {
+    id: 'defender',
+    nickname: 'DEFENDER 4×4',
+    manufacturer: 'Independent',
+    model: 'Utility Wagon 4x4',
+    year: 1985,
+    engine: '2.5 NA Diesel',
+    fuelType: 'Diesel',
+    redlineRpm: 4800,
+    speedUnit: 'KPH',
+    tempUnit: 'C',
+    isTurbocharged: false,
+    boostUnit: 'BAR',
+    maxBoostBar: 0,
+    boostWarningBar: 0,
+    boostCriticalBar: 0,
+  },
+  {
+    id: 'pajero',
+    nickname: 'PAJERO RALLY',
+    manufacturer: 'Independent',
+    model: 'Rally Raid SUV',
+    year: 1998,
+    engine: 'Turbo Diesel V6',
+    fuelType: 'Diesel',
+    redlineRpm: 5500,
+    speedUnit: 'KPH',
+    tempUnit: 'C',
+    isTurbocharged: true,
+    boostUnit: 'BAR',
+    maxBoostBar: 1.1,
+    boostWarningBar: 0.95,
+    boostCriticalBar: 1.1,
+  },
+  {
+    id: 'classic4x4gen',
+    nickname: 'CLASSIC 4X4',
+    manufacturer: 'Generic',
+    model: 'Classic Expedition 4x4',
+    year: 1975,
+    engine: 'Simulated petrol',
+    fuelType: 'Petrol',
+    redlineRpm: 5000,
+    speedUnit: 'KPH',
+    tempUnit: 'C',
+    isTurbocharged: false,
+    boostUnit: 'BAR',
+    maxBoostBar: 0,
+    boostWarningBar: 0,
+    boostCriticalBar: 0,
+  },
 ]
 
 export const DEFAULT_LAYOUT_FOR_VEHICLE: Record<string, ClusterLayoutId> = {
@@ -245,4 +315,9 @@ export const DEFAULT_LAYOUT_FOR_VEHICLE: Record<string, ClusterLayoutId> = {
   minimpi: 'CLASSIC_ELECTRONIC',
   'generic-turbo': 'JDM_DIGITAL_86',
   'generic-na': 'JDM_DIGITAL_86',
+  landcruiser: 'EXPEDITION_60',
+  landcruiser90s: 'TOURING_95',
+  defender: 'UTILITY_80',
+  pajero: 'RALLY_RAID_90',
+  classic4x4gen: 'EXPEDITION_60',
 }

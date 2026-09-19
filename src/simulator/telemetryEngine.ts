@@ -4,6 +4,7 @@ import { useMediaStore } from '@/state/mediaStore'
 import { makeChannel } from '@/types/telemetry'
 import type { TelemetrySnapshot } from '@/types/telemetry'
 import { stepBoost } from './boost'
+import { stepExpedition } from './expeditionEngine'
 
 type OverridableChannel =
   | 'speedKph'
@@ -300,6 +301,7 @@ export function startTelemetryEngine() {
     const dt = Math.min(0.5, (now - lastTickAt) / 1000)
     lastTickAt = now
     stepTelemetry(dt)
+    stepExpedition(dt)
 
     secondAccumulator += dt
     if (secondAccumulator >= 1) {

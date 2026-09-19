@@ -15,6 +15,7 @@ const BAND_COUNT = SPECTRUM_BAND_LABELS.length
 
 let bandTargets = new Array(BAND_COUNT).fill(0.1)
 let bandRetarget = new Array(BAND_COUNT).fill(0)
+let peakHoldTimers = new Array(BAND_COUNT).fill(0)
 
 interface MediaStoreState {
   ducked: boolean
@@ -26,6 +27,7 @@ interface MediaStoreState {
   visualStyle: MediaVisualStyle
   visualizerMode: VisualizerMode
   levels: number[]
+  peaks: number[]
 
   play: () => void
   pause: () => void
@@ -46,9 +48,10 @@ export const useMediaStore = create<MediaStoreState>()(persist((set, get) => ({
   currentTrackId: TRACKS[0].id,
   elapsedSeconds: 0,
   bluetoothConnected: true,
-  visualStyle: 'GRAPHIC_EQ_91',
+  visualStyle: 'EQ_DECK_89',
   visualizerMode: 'SPECTRUM',
   levels: new Array(BAND_COUNT).fill(0.08),
+  peaks: new Array(BAND_COUNT).fill(0.08),
 
   play: () => set({ isPlaying: true }),
   pause: () => set({ isPlaying: false }),
@@ -95,7 +98,18 @@ export const useMediaStore = create<MediaStoreState>()(persist((set, get) => ({
       nextLevels[i] = nextLevels[i] + (target - nextLevels[i]) * Math.min(1, rate * dtSeconds)
     }
 
-    set({ elapsedSeconds: elapsed, levels: nextLevels })
+    const nextPeaks = s.peaks.slice()
+    for (let i = 0; i < BAND_COUNT; i++) {
+      if (nextLevels[i] >= nextPeaks[i]) {
+        nextPeaks[i] = nextLevels[i]
+        peakHoldTimers[i] = 0.3 + Math.random() * 0.4
+      } else {
+        peakHoldTimers[i] -= dtSeconds
+        if (peakHoldTimers[i] <= 0) nextPeaks[i] = Math.max(nextLevels[i], nextPeaks[i] - dtSeconds * 0.9)
+      }
+    }
+
+    set({ elapsedSeconds: elapsed, levels: nextLevels, peaks: nextPeaks })
   },
   setVisualStyle: (style) => set({ visualStyle: style }),
   setVisualizerMode: (mode) => set({ visualizerMode: mode }),

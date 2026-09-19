@@ -2,17 +2,20 @@ import { useState } from 'react'
 import { Bluetooth, Play, Pause, SkipBack, SkipForward, Folder } from 'lucide-react'
 import { useMediaStore, TRACKS, SPECTRUM_BAND_LABELS } from '@/state/mediaStore'
 import type { VisualizerMode } from '@/types/media'
+import { MEDIA_ANNUNCIATORS } from '@/types/media'
 import './MediaScreen.css'
 import { HeritageRadio } from './media/HeritageRadio'
+import { DspReceiver92 } from './media/DspReceiver92'
+import { ExpeditionReceiver } from './media/ExpeditionReceiver'
 import { useVehicleStore } from '@/state/vehicleStore'
 
-function formatTime(sec: number) {
+export function formatTime(sec: number) {
   const m = Math.floor(sec / 60)
   const s = Math.floor(sec % 60)
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-function SpectrumBars({ levels, segments = 9 }: { levels: number[]; segments?: number }) {
+export function SpectrumBars({ levels, segments = 9 }: { levels: number[]; segments?: number }) {
   return (
     <div className="rd-eq-bars">
       {levels.map((lvl, i) => {
@@ -35,7 +38,33 @@ function SpectrumBars({ levels, segments = 9 }: { levels: number[]; segments?: n
   )
 }
 
-function VuMeter({ levels }: { levels: number[] }) {
+export function PeakHoldBars({ levels, peaks, segments = 9 }: { levels: number[]; peaks: number[]; segments?: number }) {
+  return (
+    <div className="rd-eq-bars">
+      {levels.map((lvl, i) => {
+        const lit = Math.round(lvl * segments)
+        const peakSeg = Math.min(segments - 1, Math.round(peaks[i] * segments))
+        return (
+          <div className="rd-eq-bar-col" key={i}>
+            <div className="rd-eq-bar-track">
+              {Array.from({ length: segments }).map((_, s) => {
+                const isLit = s < lit
+                const isPeak = s === peakSeg
+                const fromTop = segments - 1 - s
+                const color = fromTop < 2 ? 'var(--cl-critical-red)' : fromTop < 4 ? 'var(--cl-warning-amber)' : 'var(--cl-primary)'
+                if (isPeak) return <div key={s} className="rd-eq-bar-seg rd-eq-peak-seg" style={{ background: color, boxShadow: `0 0 4px ${color}` }} />
+                return <div key={s} className="rd-eq-bar-seg" style={isLit ? { background: color, boxShadow: `0 0 3px ${color}` } : undefined} />
+              })}
+            </div>
+            <span className="rd-eq-bar-freq">{SPECTRUM_BAND_LABELS[i]}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+export function VuMeter({ levels }: { levels: number[] }) {
   const left = levels.slice(0, 6).reduce((a, b) => a + b, 0) / 6
   const right = levels.slice(6).reduce((a, b) => a + b, 0) / 6
   return (
@@ -57,7 +86,7 @@ function VuMeter({ levels }: { levels: number[] }) {
   )
 }
 
-function WaveForm({ levels }: { levels: number[] }) {
+export function WaveForm({ levels }: { levels: number[] }) {
   const w = 400
   const h = 140
   const pts = levels.map((l, i) => {
@@ -73,7 +102,7 @@ function WaveForm({ levels }: { levels: number[] }) {
   )
 }
 
-function DotMatrix({ levels }: { levels: number[] }) {
+export function DotMatrix({ levels }: { levels: number[] }) {
   const cols = 28
   const rows = 7
   return (
@@ -99,6 +128,7 @@ export function MediaScreen() {
   const visualStyle = useMediaStore((s) => s.visualStyle)
   const visualizerMode = useMediaStore((s) => s.visualizerMode)
   const levels = useMediaStore((s) => s.levels)
+  const peaks = useMediaStore((s) => s.peaks)
   const currentTrackId = useMediaStore((s) => s.currentTrackId)
   const togglePlay = useMediaStore((s) => s.togglePlay)
   const next = useMediaStore((s) => s.next)
@@ -109,6 +139,7 @@ export function MediaScreen() {
   const [cassetteModes, setCassetteModes] = useState({ metal: true, nr: true, ams: false, rpt: false })
   const [cdModes, setCdModes] = useState({ rpt: false, eq: true, rdm: false })
   const [dspMode, setDspMode] = useState<'NORMAL' | 'LIVE' | 'HALL'>('NORMAL')
+  const [eqAnnunciators, setEqAnnunciators] = useState<Record<string, boolean>>({ LOUD: true, EQ3: true, DSP: false, AUTO: true, RPT: false, AMS: false })
 
   const track = TRACKS.find((t) => t.id === currentTrackId) ?? TRACKS[0]
   const trackIndex = TRACKS.findIndex((t) => t.id === currentTrackId) + 1
@@ -168,31 +199,46 @@ export function MediaScreen() {
             </>
           )}
 
-          {visualStyle === 'GRAPHIC_EQ_91' && (
-            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ flex: 1 }}>
+          {visualStyle === 'EQ_DECK_89' && (
+            <div className="rd-eqdeck">
+              <div className="rd-eqdeck-topline">
+                <span>DSP &nbsp; SPECTRUM</span>
+                <span>{bluetoothConnected ? 'BT-AUDIO' : 'AUX'}</span>
+              </div>
+              <div className="rd-eqdeck-graph">
                 {visualizerMode === 'SPECTRUM' && <SpectrumBars levels={levels} />}
+                {visualizerMode === 'PEAK_HOLD' && <PeakHoldBars levels={levels} peaks={peaks} />}
                 {visualizerMode === 'VU_METER' && <VuMeter levels={levels} />}
                 {visualizerMode === 'WAVE' && <WaveForm levels={levels} />}
                 {visualizerMode === 'DOT_MATRIX' && <DotMatrix levels={levels} />}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: 16, color: 'var(--cl-primary-bright)' }}>{track.title}</div>
-                  <div style={{ fontSize: 11, color: 'var(--cl-muted-text)', letterSpacing: 1 }}>{track.artist}</div>
+              <div className="rd-eqdeck-trackline">
+                <span className="rd-eqdeck-tracknum">TR {String(trackIndex).padStart(2, '0')}</span>
+                <div className="rd-eqdeck-titles">
+                  <strong>{track.title}</strong>
+                  <small>{track.artist}</small>
                 </div>
-                <div className="rd-media-styles">
-                  {(['SPECTRUM', 'VU_METER', 'WAVE', 'DOT_MATRIX'] as VisualizerMode[]).map((m) => (
-                    <button key={m} className={`rd-media-style-btn${visualizerMode === m ? ' active' : ''}`} onClick={() => setVisualizerMode(m)}>
-                      {m.replace('_', ' ')}
-                    </button>
-                  ))}
-                </div>
+                <span className="tabular-num">{formatTime(elapsed)}</span>
+                <span className="tabular-num rd-eqdeck-remaining">-{formatTime(remaining)}</span>
+              </div>
+              <div className="rd-eqdeck-annunciators">
+                {MEDIA_ANNUNCIATORS.EQ_DECK_89.map((a) => (
+                  <span key={a} className={eqAnnunciators[a] ? 'on' : undefined} onClick={() => setEqAnnunciators((s) => ({ ...s, [a]: !s[a] }))}>{a}</span>
+                ))}
+              </div>
+              <div className="rd-eqdeck-presets">
+                {(['SPECTRUM', 'VU_METER', 'WAVE', 'DOT_MATRIX', 'PEAK_HOLD'] as VisualizerMode[]).map((m, i) => (
+                  <button key={m} className={`rd-eqdeck-fbtn${visualizerMode === m ? ' active' : ''}`} onClick={() => setVisualizerMode(m)}>F{i + 1}</button>
+                ))}
+                <button className="rd-eqdeck-fbtn">F6</button>
               </div>
             </div>
           )}
 
-          {visualStyle === 'CD_94' && (
+          {visualStyle === 'DSP_RECEIVER_92' && <DspReceiver92/>}
+          {visualStyle === 'EXPEDITION_RECEIVER' && <ExpeditionReceiver/>}
+
+          {visualStyle === 'CD_TUNER_95' && (
             <div className="rd-cd-body">
               <div className={`rd-cd-disc${isPlaying ? ' spin' : ''}`} />
               <div className="rd-cd-info">
@@ -217,7 +263,7 @@ export function MediaScreen() {
             </div>
           )}
 
-          {visualStyle === 'MINIDISC_98' && (
+          {visualStyle === 'MD_DOT_MATRIX_98' && (
             <div className="rd-md-body">
               <div className="rd-md-toprow">
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -265,10 +311,12 @@ export function MediaScreen() {
             <div className="rd-media-styles">
               {([
                 ['CASSETTE_86', '86'],
-                ['GRAPHIC_EQ_91', '91'],
-                ['CD_94', '94'],
-                ['MINIDISC_98', '98'],
+                ['EQ_DECK_89', '89'],
+                ['DSP_RECEIVER_92', '92'],
+                ['CD_TUNER_95', '95'],
+                ['MD_DOT_MATRIX_98', '98'],
                 ['HERITAGE_RADIO', 'HERITAGE'],
+                ['EXPEDITION_RECEIVER', 'EXPEDITION'],
               ] as const).map(([style, yr]) => (
                 <button key={style} disabled={driving} title={driving?'Select media style while parked':undefined} className={`rd-media-style-btn${style === visualStyle ? ' active' : ''}`} onClick={() => setVisualStyle(style)}>
                   {yr}

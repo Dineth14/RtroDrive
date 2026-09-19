@@ -176,6 +176,94 @@
   background: var(--cl-grid-line);
 }
 
+/* ---- EQ Deck 89 ---- */
+.rd-eqdeck {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rd-eqdeck-topline {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--cl-muted-text);
+}
+.rd-eqdeck-graph {
+  flex: 1;
+  min-height: 0;
+}
+.rd-eqdeck-trackline {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  border-top: 1px solid var(--cl-grid-line);
+  padding-top: 8px;
+}
+.rd-eqdeck-tracknum {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--cl-amber);
+}
+.rd-eqdeck-titles {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.rd-eqdeck-titles strong {
+  font-size: 15px;
+  color: var(--cl-primary-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rd-eqdeck-titles small {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--cl-muted-text);
+}
+.rd-eqdeck-remaining {
+  color: var(--cl-muted-text);
+}
+.rd-eqdeck-annunciators {
+  display: flex;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+.rd-eqdeck-annunciators span {
+  color: var(--cl-grid-line);
+  cursor: pointer;
+}
+.rd-eqdeck-annunciators span.on {
+  color: var(--cl-amber);
+  text-shadow: 0 0 4px currentColor;
+}
+.rd-eqdeck-presets {
+  display: flex;
+  gap: 6px;
+}
+.rd-eqdeck-fbtn {
+  flex: 1;
+  font-size: 10px;
+  padding: 3px 0;
+  border: 1px solid var(--cl-grid-line);
+  background: transparent;
+  color: var(--cl-muted-text);
+  cursor: pointer;
+}
+.rd-eqdeck-fbtn.active {
+  color: var(--cl-primary);
+  border-color: var(--cl-primary-dim);
+}
+.rd-eq-peak-seg {
+  background: var(--cl-primary-bright) !important;
+  box-shadow: 0 0 5px var(--cl-primary-bright) !important;
+}
+
 /* ---- CD 94 ---- */
 .rd-cd-body {
   display: flex;

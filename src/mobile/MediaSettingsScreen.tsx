@@ -6,13 +6,16 @@ import './mobile.css'
 const STYLES: { id: MediaVisualStyle; label: string; desc: string }[] = [
   { id: 'HERITAGE_RADIO', label: 'HERITAGE RADIO', desc: 'Ivory dial, chrome controls and twin VU instruments' },
   { id: 'CASSETTE_86', label: 'CASSETTE 86', desc: 'Auto-reverse deck with VFD block progress' },
-  { id: 'GRAPHIC_EQ_91', label: 'GRAPHIC EQ 91', desc: 'Component head-unit spectrum analyzer' },
-  { id: 'CD_94', label: 'CD 94', desc: 'Disc/track head-unit display' },
-  { id: 'MINIDISC_98', label: 'MINIDISC 98', desc: 'Scrolling dot-matrix track display' },
+  { id: 'EQ_DECK_89', label: 'EQ DECK 89', desc: 'Dense graphic-equalizer dominant head unit' },
+  { id: 'DSP_RECEIVER_92', label: 'DSP RECEIVER 92', desc: 'Illuminated component receiver, teal/green displays' },
+  { id: 'CD_TUNER_95', label: 'CD TUNER 95', desc: 'Disc/track head-unit display' },
+  { id: 'MD_DOT_MATRIX_98', label: 'MD DOT MATRIX 98', desc: 'Scrolling dot-matrix track display' },
+  { id: 'EXPEDITION_RECEIVER', label: 'EXPEDITION RECEIVER', desc: 'Rugged receiver with signal/battery/GPS status' },
 ]
 
 const VIZ_MODES: { id: VisualizerMode; label: string }[] = [
   { id: 'SPECTRUM', label: 'SPECTRUM' },
+  { id: 'PEAK_HOLD', label: 'PEAK HOLD' },
   { id: 'VU_METER', label: 'VU METER' },
   { id: 'WAVE', label: 'WAVE' },
   { id: 'DOT_MATRIX', label: 'DOT MATRIX' },
@@ -45,7 +48,7 @@ export function MediaSettingsScreen() {
         ))}
       </div>
 
-      {visualStyle === 'GRAPHIC_EQ_91' && (
+      {visualStyle === 'EQ_DECK_89' && (
         <>
           <div className="rd-m-section-label">VISUALIZER MODE</div>
           <div className="rd-m-card">

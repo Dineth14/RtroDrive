@@ -1,2 +1,33 @@
 .rd-heritage-radio{width:100%;height:100%;padding:16px 12px;font-family:Georgia,serif;display:flex;flex-direction:column;justify-content:space-between}.rd-heritage-radio header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #77816a;padding-bottom:14px}.rd-heritage-radio h1{font-size:28px;font-style:italic;font-weight:400;margin:0}.rd-heritage-radio header span{font:10px monospace;letter-spacing:1px}.heritage-vu{display:flex;align-items:center;gap:26px}.heritage-radio-dial{flex:1;text-align:center;border:3px double #8e947d;padding:24px 22px;background:#101911}.radio-frequencies{display:flex;justify-content:space-between;font-size:17px}.radio-dial-ticks{position:relative;height:30px;margin-top:10px;background:repeating-linear-gradient(90deg,#b6b69a 0 1px,transparent 1px 9px);border-block:1px solid #7d846d}.radio-dial-ticks i{position:absolute;width:3px;height:40px;left:42%;top:-5px;background:#c2845e}.heritage-radio-dial>span{font-size:9px;letter-spacing:3px;display:block;margin-top:14px}.radio-track-display{border-top:1px solid #46513f;padding-top:20px;margin-top:20px;display:grid;gap:10px}.radio-track-display strong{font-size:16px;letter-spacing:2px}.radio-track-display small{font:11px monospace}.heritage-controls{display:flex;justify-content:space-around;align-items:center}.heritage-controls button{background:linear-gradient(135deg,#3d483e,#121a14);border:3px double #8d9680;color:#e4d9bd;border-radius:50%;width:66px;height:66px;font:12px Georgia;cursor:pointer}.heritage-controls>div{display:grid;gap:6px;text-align:center}.heritage-controls span{font:10px monospace;letter-spacing:3px}.heritage-controls strong{font:24px monospace}.heritage-controls progress{width:240px;height:3px;accent-color:#babb92}.rd-heritage-radio footer{text-align:center;font:9px monospace;letter-spacing:4px;color:var(--cl-muted-text)}
-.rd-media-stage{border:3px double var(--cl-primary-dim);box-shadow:inset 0 0 0 6px var(--cl-background);padding:25px!important}.rd-media-topline{letter-spacing:3px}.rd-eq-bar-seg{box-shadow:none!important}.rd-media[data-style="GRAPHIC_EQ_91"] .rd-media-stage{background:repeating-linear-gradient(0deg,transparent 0 3px,#71826206 3px 4px),var(--cl-panel)}.rd-media[data-style="MINIDISC_98"] .rd-media-stage{background:radial-gradient(var(--cl-grid-line) .65px,transparent .8px);background-size:4px 4px}
+.rd-media-stage{border:3px double var(--cl-primary-dim);box-shadow:inset 0 0 0 6px var(--cl-background);padding:25px!important}.rd-media-topline{letter-spacing:3px}.rd-eq-bar-seg{box-shadow:none!important}.rd-media[data-style="EQ_DECK_89"] .rd-media-stage{background:repeating-linear-gradient(0deg,transparent 0 3px,#71826206 3px 4px),var(--cl-panel)}.rd-media[data-style="MD_DOT_MATRIX_98"] .rd-media-stage{background:radial-gradient(var(--cl-grid-line) .65px,transparent .8px);background-size:4px 4px}
+
+/* ---- DSP Receiver 92 ---- */
+.rd-dsp92{width:100%;height:100%;display:flex;flex-direction:column;gap:10px;color:#8fe0d0;font-family:"JetBrains Mono","Consolas",monospace}
+.rd-dsp92-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:2px}
+.rd-dsp92-top{color:#5fb8ac}
+.rd-dsp92-label{color:#d9a24a}
+.rd-dsp92-spectrum{flex:1;display:flex;align-items:flex-end;gap:4px;min-height:0;padding:6px 0}
+.rd-dsp92-bar-col{flex:1;height:100%;display:flex;align-items:flex-end}
+.rd-dsp92-bar{width:100%;background:linear-gradient(180deg,#8fe0d0,#2d6b60);box-shadow:0 0 4px #4fc9b8;min-height:3px}
+.rd-dsp92-track{border-top:1px solid #274944;padding-top:8px;display:flex;flex-direction:column;gap:2px}
+.rd-dsp92-tracknum{font-size:10px;letter-spacing:2px;color:#d9a24a}
+.rd-dsp92-track strong{font-size:16px;color:#c9f5ec;text-shadow:0 0 6px #4fc9b8}
+.rd-dsp92-track small{font-size:11px;letter-spacing:1px;color:#5fb8ac}
+.rd-dsp92-vu{display:flex;flex-direction:column;gap:4px}
+.rd-dsp92-vu-channel{display:flex;align-items:center;gap:8px;font-size:10px}
+.rd-dsp92-vu-track{flex:1;height:6px;background:#0c1a17;border:1px solid #274944}
+.rd-dsp92-vu-fill{height:100%;background:linear-gradient(90deg,#4fc9b8,#d9a24a,#d84a3a)}
+.rd-dsp92-annunciators{display:flex;gap:14px;font-size:9px;letter-spacing:1.5px;color:#274944}
+.rd-dsp92-annunciators span.on{color:#d9a24a;text-shadow:0 0 4px currentColor}
+
+/* ---- Expedition Receiver ---- */
+.rd-exp-receiver{width:100%;height:100%;display:flex;flex-direction:column;gap:10px;color:#c7d0b8;font-family:"JetBrains Mono","Consolas",monospace}
+.rd-exp-row{display:flex;justify-content:space-between;font-size:11px;letter-spacing:1.5px;color:#8fa27e}
+.rd-exp-track{border-bottom:1px solid #3a4530;padding-bottom:8px}
+.rd-exp-track strong{display:block;font-size:16px;color:#e4e8d6}
+.rd-exp-track small{font-size:11px;letter-spacing:1px;color:#8fa27e}
+.rd-exp-spectrum{flex:1;display:flex;align-items:flex-end;gap:5px;min-height:0;padding:4px 0}
+.rd-exp-bar{flex:1;background:#8fa27e;min-height:3px}
+.rd-exp-status-grid{display:flex;justify-content:space-between;border-top:1px solid #3a4530;padding-top:8px}
+.rd-exp-status-grid label{display:block;font-size:9px;letter-spacing:1.5px;color:#6c7a5c}
+.rd-exp-status-grid strong{font-size:15px;color:#e4e8d6}

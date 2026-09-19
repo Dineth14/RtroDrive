@@ -90,7 +90,7 @@ export const useSettingsStore = create<SettingsState>()(
       updateWarningThresholds: (patch) =>
         set((s) => ({ warnings: { ...s.warnings, ...patch } })),
       resetToDefaults: () => {
-        useMediaStore.getState().setVisualStyle('GRAPHIC_EQ_91')
+        useMediaStore.getState().setVisualStyle('EQ_DECK_89')
         set({
           vehicleProfile: defaultVehicle,
           display: defaultDisplay,
