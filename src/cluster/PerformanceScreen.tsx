@@ -5,6 +5,8 @@ import { RetroGauge } from './widgets/RetroGauge'
 import { BoostGauge } from './widgets/BoostGauge'
 import { resolveAuxSlot } from '@/utils/auxSlots'
 import './PerformanceScreen.css'
+import { getVisualProfile } from '@/vehicleProfiles/profiles'
+import { ClassicRoundGauge, ClassicTachometer, ClassicTemperatureGauge, ClassicVoltageGauge } from './gauges/classic/ClassicGauges'
 
 export function PerformanceScreen() {
   const telemetry = useVehicleStore((s) => s.telemetry)
@@ -36,6 +38,7 @@ export function PerformanceScreen() {
   }, [speed, timing])
 
   const aux = resolveAuxSlot('BOOST', telemetry, vehicle)
+  if(getVisualProfile(vehicle).era==='CLASSIC_60') return <div className="rd-classic-performance"><header><h1>Engine Instruments</h1><span>RETRODRIVE / SERVICE & PERFORMANCE</span></header><div><ClassicTachometer value={telemetry.rpm.value/1000} warningAt={vehicle.redlineRpm/1000} size={280}/><ClassicRoundGauge label="THROTTLE" unit="%" value={telemetry.throttlePercent.value} size={210}/><ClassicRoundGauge label="ENGINE LOAD" unit="%" value={telemetry.engineLoadPercent.value} size={210}/></div><section><ClassicTemperatureGauge value={telemetry.coolantTempC.value} size={150}/><ClassicVoltageGauge value={telemetry.batteryVoltage.value} size={150}/><p>MAX ENGINE SPEED<br/><strong>{Math.round(telemetry.maxRpm.value)} r/min</strong></p><p>MAX WATER TEMPERATURE<br/><strong>{Math.round(telemetry.maxCoolantC.value)}°C</strong></p></section></div>
 
   return (
     <div className="rd-screen">
@@ -47,7 +50,6 @@ export function PerformanceScreen() {
         {vehicle.isTurbocharged ? (
           <BoostGauge
             valueBar={telemetry.boostBar.value}
-            peakBar={telemetry.maxBoostBar.value}
             unit={vehicle.boostUnit}
             maxBar={Math.max(1.6, vehicle.maxBoostBar * 1.2)}
             warningBar={vehicle.boostWarningBar}

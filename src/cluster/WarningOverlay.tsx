@@ -9,6 +9,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 }
 
 export function WarningOverlay() {
+  const telemetry=useVehicleStore(s=>s.telemetry)
   const warnings = useVehicleStore((s) => s.warnings)
   const acknowledgeWarning = useVehicleStore((s) => s.acknowledgeWarning)
 
@@ -22,6 +23,7 @@ export function WarningOverlay() {
       {primary && (
         <div className={`rd-warn-box${primary.severity === 'CRITICAL' ? ' critical' : ''}`}>
           <div className="rd-warn-title">{primary.title}</div>
+          <div className="rd-warning-driving-data">{Math.round(telemetry.speedKph.value)} km/h · {Math.round(telemetry.rpm.value)} RPM</div>
           {primary.value && <div className="rd-warn-value tabular-num">{primary.value}</div>}
           <div className="rd-warn-detail">{primary.detail}</div>
           <button className="rd-warn-ack" onClick={() => acknowledgeWarning(primary.id)}>

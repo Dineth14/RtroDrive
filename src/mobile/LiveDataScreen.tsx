@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts'
 import { useVehicleStore } from '@/state/vehicleStore'
 import './LiveDataScreen.css'
+import { useSettingsStore } from '@/state/settingsStore'
+import { getVisualProfile } from '@/vehicleProfiles/profiles'
+import { ClassicRoundGauge, ClassicSpeedometer, ClassicTachometer, ClassicFuelGauge, ClassicTemperatureGauge, ClassicVoltageGauge } from '@/cluster/gauges/classic/ClassicGauges'
+import { BoostGauge } from '@/cluster/widgets/BoostGauge'
 
 interface CardDef {
   key: string
@@ -27,6 +31,7 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 }
 
 export function LiveDataScreen() {
+  const vehicle=useSettingsStore(s=>s.vehicleProfile)
   const historyRef = useRef<Record<string, number[]>>({})
   const [, forceTick] = useState(0)
 
@@ -67,8 +72,10 @@ export function LiveDataScreen() {
     { key: 'stft', label: 'STFT', unit: '%', get: () => t.shortFuelTrimPercent.value, color: '#e06a5a', decimals: 1 },
   ]
 
+  if(getVisualProfile(vehicle).era==='CLASSIC_60') return <div className="phone-classic-live"><ClassicSpeedometer value={t.speedKph.value}/><ClassicTachometer value={t.rpm.value/1000} warningAt={vehicle.redlineRpm/1000}/><ClassicTemperatureGauge value={t.coolantTempC.value}/><ClassicFuelGauge value={t.fuelPercent.value}/><ClassicVoltageGauge value={t.batteryVoltage.value}/><ClassicRoundGauge label="LOAD" unit="%" value={t.engineLoadPercent.value}/></div>
   return (
     <div className="rd-live-grid">
+      {vehicle.isTurbocharged&&<div className="phone-live-boost"><BoostGauge valueBar={t.boostBar.value} unit={vehicle.boostUnit} maxBar={Math.max(1.5,vehicle.maxBoostBar)} warningBar={vehicle.boostWarningBar} criticalBar={vehicle.boostCriticalBar}/></div>}
       {cards.map((c) => (
         <div className="rd-live-card" key={c.key}>
           <div className="rd-live-card-label">{c.label}</div>

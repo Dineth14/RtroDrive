@@ -1,8 +1,11 @@
-import { useState } from 'react'
-import { Home, Activity, AlertTriangle, Route, Settings, ChevronLeft, MapPin } from 'lucide-react'
+import { lazy, Suspense, useState } from 'react'
+import { Home, Activity, AlertTriangle, Route, Settings, ChevronLeft, MapPin, Music } from 'lucide-react'
+import { useSettingsStore } from '@/state/settingsStore'
+import { getVisualProfile } from '@/vehicleProfiles/profiles'
+import { MediaPlayerScreen } from './MediaPlayerScreen'
 import { useVehicleStore } from '@/state/vehicleStore'
 import { HomeScreen } from './HomeScreen'
-import { LiveDataScreen } from './LiveDataScreen'
+const LiveDataScreen=lazy(()=>import('./LiveDataScreen').then(m=>({default:m.LiveDataScreen})))
 import { GpsMapScreen } from './GpsMapScreen'
 import { DiagnosticsScreen } from './DiagnosticsScreen'
 import { DiagnosticDetailScreen } from './DiagnosticDetailScreen'
@@ -17,9 +20,11 @@ import { ConnectivityScreen } from './ConnectivityScreen'
 import { AboutScreen } from './AboutScreen'
 import { MediaSettingsScreen } from './MediaSettingsScreen'
 import './PhoneShell.css'
+import './vehicleThemes.css'
 
 export type PhoneScreenId =
   | 'HOME'
+  | 'MEDIA'
   | 'LIVE'
   | 'GPS'
   | 'DIAG_LIST'
@@ -35,9 +40,10 @@ export type PhoneScreenId =
   | 'SETTINGS_MEDIA'
   | 'SETTINGS_ABOUT'
 
-type Tab = 'HOME' | 'LIVE' | 'GPS' | 'DIAG' | 'TRIPS' | 'SETTINGS'
+type Tab = 'HOME' | 'LIVE' | 'GPS' | 'DIAG' | 'TRIPS' | 'MEDIA' | 'SETTINGS'
 
 const TAB_HOME_SCREEN: Record<Tab, PhoneScreenId> = {
+  MEDIA: 'MEDIA',
   HOME: 'HOME',
   LIVE: 'LIVE',
   GPS: 'GPS',
@@ -47,6 +53,7 @@ const TAB_HOME_SCREEN: Record<Tab, PhoneScreenId> = {
 }
 
 const SCREEN_TITLES: Record<PhoneScreenId, string> = {
+  MEDIA: 'AUDIO',
   HOME: 'RETRODRIVE',
   LIVE: 'LIVE DATA',
   GPS: 'GPS / MAP',
@@ -77,6 +84,8 @@ const BACK_TARGET: Partial<Record<PhoneScreenId, PhoneScreenId>> = {
 }
 
 export function PhoneShell() {
+  const vehicle=useSettingsStore(s=>s.vehicleProfile)
+  const visual=getVisualProfile(vehicle)
   const [screen, setScreen] = useState<PhoneScreenId>('HOME')
   const [activeTab, setActiveTab] = useState<Tab>('HOME')
   const [selectedDtc, setSelectedDtc] = useState<string | null>(null)
@@ -104,7 +113,7 @@ export function PhoneShell() {
   return (
     <div className="rd-phone-bezel">
       <div className="rd-phone-notch" />
-      <div className="rd-phone-screen">
+      <div className="rd-phone-screen" data-era={visual.era} data-profile={visual.id}>
         <div className="rd-phone-statusbar">
           <span>{now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
           <span>RETRODRIVE</span>
@@ -126,7 +135,8 @@ export function PhoneShell() {
           )}
 
           {screen === 'HOME' && <HomeScreen onOpenDtc={openDtc} onViewLocation={() => goTab('GPS')} />}
-          {screen === 'LIVE' && <LiveDataScreen />}
+          {screen === 'LIVE' && <Suspense fallback={<div className="rd-m-empty">READING INSTRUMENTS…</div>}><LiveDataScreen /></Suspense>}
+          {screen === 'MEDIA' && <MediaPlayerScreen/>}
           {screen === 'GPS' && <GpsMapScreen />}
           {screen === 'DIAG_LIST' && <DiagnosticsScreen onOpenDtc={openDtc} />}
           {screen === 'DIAG_DETAIL' && selectedDtc && <DiagnosticDetailScreen code={selectedDtc} />}
@@ -150,6 +160,7 @@ export function PhoneShell() {
               ['GPS', MapPin, 'GPS'],
               ['DIAG', AlertTriangle, 'DIAG'],
               ['TRIPS', Route, 'TRIPS'],
+              ['MEDIA', Music, 'MEDIA'],
               ['SETTINGS', Settings, 'MORE'],
             ] as const
           ).map(([tab, Icon, label]) => (

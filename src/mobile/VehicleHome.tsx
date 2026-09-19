@@ -1,0 +1,9 @@
+import { useVehicleStore } from '@/state/vehicleStore'
+import { useSettingsStore } from '@/state/settingsStore'
+import { getVisualProfile } from '@/vehicleProfiles/profiles'
+import { CarSilhouette } from '@/vehicleProfiles/CarSilhouette'
+import { CompassRose } from '@/cluster/navigation/ClassicNavigation'
+export function VehicleHome() {
+  const vehicle=useSettingsStore(s=>s.vehicleProfile), t=useVehicleStore(s=>s.telemetry), connections=useVehicleStore(s=>s.connections), visual=getVisualProfile(vehicle)
+  return <section className="rd-phone-vehicle"><div className="phone-vehicle-status"><span>{connections.obd==='CONNECTED'?'● CONNECTED':'○ DISCONNECTED'}</span><span>{vehicle.year} / {visual.era==='CLASSIC_60'?'HERITAGE':'ELECTRONIC'}</span></div><h1>{vehicle.nickname}</h1><p>{visual.name}</p><CarSilhouette key={visual.id} artwork={visual.carArtwork} connected={connections.obd==='CONNECTED'} animated/><div className="phone-hero-readings">{[[t.fuelPercent.value.toFixed(0)+'%','FUEL'],[t.coolantTempC.value.toFixed(0)+'°','WATER'],[t.batteryVoltage.value.toFixed(1)+'V','BATTERY']].map(([v,l])=><div key={l}><strong>{v}</strong><span>{l}</span></div>)}</div>{vehicle.isTurbocharged&&<div className="phone-boost-strip"><span>BOOST / {vehicle.boostUnit}</span><b>{(vehicle.boostUnit==='PSI'?t.boostPsi.value:t.boostBar.value).toFixed(2)}</b><i style={{width:`${Math.max(0,Math.min(100,(t.boostBar.value+1)/(vehicle.maxBoostBar+1)*100))}%`}}/></div>}{visual.carArtwork==='offroad'&&<div className="phone-expedition"><CompassRose heading={t.headingDeg.value} valid={connections.gps==='FIX'}/><span>EXPEDITION LOG<br/>{t.tripDistanceKm.value.toFixed(1)} km<br/>{connections.gps==='FIX'?'POSITION ACQUIRED':'POSITION SEARCH'}</span></div>}<div className="phone-gps-status">POSITION {connections.gps} <span>{t.satelliteCount.value} SAT · ±{t.gpsAccuracyM.value.toFixed(1)} m</span></div></section>
+}

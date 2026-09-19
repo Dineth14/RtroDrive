@@ -3,6 +3,8 @@ import { Bluetooth, Play, Pause, SkipBack, SkipForward, Folder } from 'lucide-re
 import { useMediaStore, TRACKS, SPECTRUM_BAND_LABELS } from '@/state/mediaStore'
 import type { VisualizerMode } from '@/types/media'
 import './MediaScreen.css'
+import { HeritageRadio } from './media/HeritageRadio'
+import { useVehicleStore } from '@/state/vehicleStore'
 
 function formatTime(sec: number) {
   const m = Math.floor(sec / 60)
@@ -89,6 +91,8 @@ function DotMatrix({ levels }: { levels: number[] }) {
 }
 
 export function MediaScreen() {
+  const ducked=useMediaStore(s=>s.ducked)
+  const driving=useVehicleStore(s=>s.telemetry.speedKph.value>5)
   const isPlaying = useMediaStore((s) => s.isPlaying)
   const elapsed = useMediaStore((s) => s.elapsedSeconds)
   const bluetoothConnected = useMediaStore((s) => s.bluetoothConnected)
@@ -119,21 +123,22 @@ export function MediaScreen() {
 
   return (
     <div className="rd-screen">
-      <div className="rd-media">
+      <div className="rd-media" data-style={visualStyle}>
         <div className="rd-media-topline">
-          <span>RETRODRIVE AUDIO</span>
+          <span>RETRODRIVE AUDIO {ducked?' / ATT · WARNING':''}</span>
           <span className="rd-media-bt" style={{ color: bluetoothConnected ? 'var(--cl-primary)' : 'var(--cl-muted-text)' }}>
             <Bluetooth size={13} /> {bluetoothConnected ? 'CONNECTED' : 'DISCONNECTED'}
           </span>
         </div>
 
         <div className="rd-media-stage">
+          {visualStyle === 'HERITAGE_RADIO' && <HeritageRadio/>}
           {visualStyle === 'CASSETTE_86' && (
             <>
               <div className="rd-cassette-head">
                 <span>AUTO REVERSE</span>
                 <span>TAPE A</span>
-                <span>DOLBY B</span>
+                <span>NOISE REDUCTION</span>
               </div>
               <div className="rd-cassette-body">
                 <div className="rd-cassette-deck">
@@ -263,8 +268,9 @@ export function MediaScreen() {
                 ['GRAPHIC_EQ_91', '91'],
                 ['CD_94', '94'],
                 ['MINIDISC_98', '98'],
+                ['HERITAGE_RADIO', 'HERITAGE'],
               ] as const).map(([style, yr]) => (
-                <button key={style} className={`rd-media-style-btn${style === visualStyle ? ' active' : ''}`} onClick={() => setVisualStyle(style)}>
+                <button key={style} disabled={driving} title={driving?'Select media style while parked':undefined} className={`rd-media-style-btn${style === visualStyle ? ' active' : ''}`} onClick={() => setVisualStyle(style)}>
                   {yr}
                 </button>
               ))}

@@ -4,6 +4,7 @@ import { ToggleRow } from './MobileControls'
 import './mobile.css'
 
 const STYLES: { id: MediaVisualStyle; label: string; desc: string }[] = [
+  { id: 'HERITAGE_RADIO', label: 'HERITAGE RADIO', desc: 'Ivory dial, chrome controls and twin VU instruments' },
   { id: 'CASSETTE_86', label: 'CASSETTE 86', desc: 'Auto-reverse deck with VFD block progress' },
   { id: 'GRAPHIC_EQ_91', label: 'GRAPHIC EQ 91', desc: 'Component head-unit spectrum analyzer' },
   { id: 'CD_94', label: 'CD 94', desc: 'Disc/track head-unit display' },

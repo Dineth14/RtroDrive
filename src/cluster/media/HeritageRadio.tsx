@@ -1,0 +1,8 @@
+import { useMediaStore } from '@/state/mediaStore'
+import { ClassicRoundGauge } from '../gauges/classic/ClassicGauges'
+import './media.css'
+export function HeritageRadio() {
+  const media=useMediaStore(), track=media.currentTrack()
+  const level=(start:number)=>media.levels.slice(start,start+6).reduce((a,b)=>a+b,0)/6*100
+  return <div className="rd-heritage-radio"><header><span>RETRODRIVE</span><h1>Heritage Radio</h1><span>HIGH FIDELITY / STEREO</span></header><div className="heritage-vu"><ClassicRoundGauge value={level(0)} label="LEFT" unit="VU" size={150} major={5}/><div className="heritage-radio-dial"><div className="radio-frequencies">{['88','92','96','100','104','108'].map(n=><span key={n}>{n}</span>)}</div><div className="radio-dial-ticks"><i/></div><span>FM · STEREO · AUXILIARY</span><div className="radio-track-display"><strong>{track.title}</strong><small>{track.artist} · {media.bluetoothConnected?'Bluetooth audio':'Audio disconnected'}</small></div></div><ClassicRoundGauge value={level(6)} label="RIGHT" unit="VU" size={150} major={5}/></div><div className="heritage-controls"><button onClick={media.previous} aria-label="Previous track">‹</button><div><span>TRACK {track.id.slice(1).padStart(2,'0')}</span><strong>{Math.floor(media.elapsedSeconds/60)}:{String(Math.floor(media.elapsedSeconds%60)).padStart(2,'0')}</strong><progress value={media.elapsedSeconds} max={track.durationSeconds}/></div><button onClick={media.togglePlay}>{media.isPlaying?'PAUSE':'PLAY'}</button><button onClick={media.next} aria-label="Next track">›</button></div><footer>WIRELESS SOURCE · WARM ANALOGUE CHARACTER</footer></div>
+}

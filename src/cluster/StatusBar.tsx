@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useVehicleStore } from '@/state/vehicleStore'
+import { useSettingsStore } from '@/state/settingsStore'
 
 export function StatusBar() {
+  const speed=useVehicleStore(s=>s.telemetry.speedKph.value)
+  const chime=useSettingsStore(s=>s.sound)
   const connections = useVehicleStore((s) => s.connections)
   const dtcs = useVehicleStore((s) => s.dtcs)
   const [now, setNow] = useState(() => new Date())
@@ -37,6 +40,7 @@ export function StatusBar() {
       }}
     >
       <span>{timeStr}</span>
+      {chime.speedChimeEnabled&&speed>=chime.speedChimeThresholdKph&&<span style={{color:'var(--cl-warning-amber)'}}>SPEED · {Math.round(speed)} km/h</span>}
       <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
         {activeDtcCount > 0 && (
           <span style={{ color: 'var(--cl-warning-amber)' }}>DTC &times;{activeDtcCount}</span>

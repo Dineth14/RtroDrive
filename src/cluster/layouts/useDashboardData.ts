@@ -2,8 +2,11 @@ import { useVehicleStore } from '@/state/vehicleStore'
 import { useSettingsStore } from '@/state/settingsStore'
 import { useMediaStore, TRACKS } from '@/state/mediaStore'
 
-export function useDashboardData() {
-  const telemetry = useVehicleStore((s) => s.telemetry)
+export function useDashboardData(testValue?: number) {
+  const live = useVehicleStore((s) => s.telemetry)
+  const telemetry = testValue === undefined ? live : {...live,
+    speedKph:{...live.speedKph,value:888}, rpm:{...live.rpm,value:8000*testValue},
+    fuelPercent:{...live.fuelPercent,value:100*testValue,available:true}, coolantTempC:{...live.coolantTempC,value:130*testValue,available:true}}
   const speedSourceActive = useVehicleStore((s) => s.speedSourceActive)
   const connections = useVehicleStore((s) => s.connections)
   const display = useSettingsStore((s) => s.display)

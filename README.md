@@ -1,5 +1,11 @@
 # RetroDrive HMI Simulator
 
+**HMI V4:** See the [vehicle-adaptive implementation guide](docs/HMI-V4.md)
+for the current visual profile architecture, analogue instruments, vehicle
+artwork/boot sequence, navigation, five media skins, phone redesign and tests.
+That guide supersedes the earlier V3 layout/boost/media descriptions below.
+Run `npm test` for the V4 regression suite. Visual browser QA remains pending.
+
 A desktop simulator for **RetroDrive**, a compact 1980s/1990s-inspired smart
 auxiliary instrument cluster for enthusiast and heritage vehicles. It
 reproduces the final 1024×600 in-car display pixel-for-pixel, alongside a

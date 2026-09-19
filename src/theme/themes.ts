@@ -15,6 +15,9 @@ export interface ClusterThemeColors {
 }
 
 export const CLUSTER_THEMES: Record<ThemeName, ClusterThemeColors> = {
+  HERITAGE_IVORY: {
+    background: '#14231e', panel: '#17251f', panelAlt: '#202a23', primary: '#d5cbb0', primaryBright: '#f3e6c8', primaryDim: '#777d64', amber: '#c49d57', warningAmber: '#dfa855', criticalRed: '#cf5345', mutedText: '#9a9f89', gridLine: '#3c493b',
+  },
   JDM_PHOSPHOR: {
     background: '#050906',
     panel: '#07100A',

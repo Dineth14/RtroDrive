@@ -53,3 +53,4 @@
   color: var(--cl-primary-dim);
   letter-spacing: 1px;
 }
+.rd-classic-performance{position:absolute;inset:46px 45px 36px;font-family:Georgia,serif}.rd-classic-performance header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cl-primary-dim)}.rd-classic-performance h1{font-size:28px;font-weight:400;font-style:italic}.rd-classic-performance header span{font:10px monospace;letter-spacing:1px}.rd-classic-performance>div{display:flex;align-items:center;justify-content:space-evenly;margin-top:10px}.rd-classic-performance section{display:flex;align-items:center;gap:25px;justify-content:center}.rd-classic-performance p{font:10px/2 monospace}.rd-classic-performance strong{font:20px Georgia}

@@ -22,3 +22,4 @@ export type ScenarioId =
   | 'MUSIC_PLAYBACK'
   | 'MUSIC_WARNING'
   | 'NIGHT_DRIVE'
+  | 'PARK_VEHICLE'

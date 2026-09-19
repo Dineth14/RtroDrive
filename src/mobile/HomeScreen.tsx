@@ -1,6 +1,6 @@
 import { useVehicleStore } from '@/state/vehicleStore'
-import { useSettingsStore } from '@/state/settingsStore'
 import './mobile.css'
+import { VehicleHome } from './VehicleHome'
 
 const STATUS_CLASS: Record<string, string> = {
   NORMAL: 'rd-m-status-normal',
@@ -19,8 +19,6 @@ function timeAgo(ts: number) {
 }
 
 export function HomeScreen({ onOpenDtc, onViewLocation }: { onOpenDtc: (code: string) => void; onViewLocation?: () => void }) {
-  const vehicle = useSettingsStore((s) => s.vehicleProfile)
-  const connections = useVehicleStore((s) => s.connections)
   const ignition = useVehicleStore((s) => s.ignition)
   const telemetry = useVehicleStore((s) => s.telemetry)
   const health = useVehicleStore((s) => s.health)
@@ -30,16 +28,10 @@ export function HomeScreen({ onOpenDtc, onViewLocation }: { onOpenDtc: (code: st
   const lastTrip = trips[0]
 
   const overallGood = health.every((h) => h.status === 'NORMAL')
-  const connected = connections.obd === 'CONNECTED'
 
   return (
     <div>
-      <div className="rd-m-card">
-        <div style={{ fontSize: 22, fontWeight: 700 }}>{vehicle.nickname}</div>
-        <div style={{ fontSize: 12, color: connected ? '#8fcb83' : '#6c786f', marginTop: 4 }}>
-          {connected ? 'CONNECTED' : 'DISCONNECTED'}
-        </div>
-      </div>
+      <VehicleHome/>
 
       {ignition === 'OFF' && parkedLocation && (
         <div className="rd-m-card">

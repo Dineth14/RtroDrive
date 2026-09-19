@@ -5,8 +5,8 @@ import { WarningLampStrip } from '../widgets/WarningLampStrip'
 import { useDashboardData } from './useDashboardData'
 import { OdoTripClockRow, MediaTicker } from './DashboardChrome'
 
-export function EuroDigital89() {
-  const { telemetry, speedSourceActive, display, warnings, vehicle, isPlaying, track } = useDashboardData()
+export function EuroDigital89({testValue}:{testValue?:number} = {}) {
+  const { telemetry, speedSourceActive, display, warnings, vehicle, isPlaying, track } = useDashboardData(testValue)
 
   return (
     <div className="rd-screen">
@@ -52,7 +52,7 @@ export function EuroDigital89() {
         </div>
 
         <div style={{ marginTop: 'auto', paddingBottom: 4 }}>
-          <WarningLampStrip />
+          <WarningLampStrip forceAllLit={testValue!==undefined}/>
         </div>
       </div>
 

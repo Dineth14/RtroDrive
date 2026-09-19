@@ -3,6 +3,7 @@ import { useSettingsStore } from '@/state/settingsStore'
 import { useMediaStore } from '@/state/mediaStore'
 import { makeChannel } from '@/types/telemetry'
 import type { TelemetrySnapshot } from '@/types/telemetry'
+import { stepBoost } from './boost'
 
 type OverridableChannel =
   | 'speedKph'
@@ -19,12 +20,17 @@ type OverridableChannel =
   | 'mapAbsoluteKpa'
   | 'barometricPressureKpa'
   | 'headingDeg'
+  | 'latitude'
+  | 'longitude'
+  | 'satelliteCount'
+  | 'gpsAccuracyM'
 
 type OverrideMap = Partial<Record<OverridableChannel, number>>
 
 const overrides: OverrideMap = {}
 const forcedUnavailable = new Set<OverridableChannel>()
 let boostSpool = 0
+let physicalSpeed = 0
 let breadcrumbTimer = 0
 
 export function setForcedUnavailable(channel: OverridableChannel, unavailable: boolean) {
@@ -37,6 +43,7 @@ let autoTargetTimer = 0
 
 let lastTickAt = performance.now()
 let intervalHandle: number | null = null
+let spectrumHandle: number | null = null
 let secondAccumulator = 0
 
 function clamp(v: number, lo: number, hi: number) {
@@ -64,17 +71,19 @@ export function getOverrides(): Readonly<OverrideMap> {
   return overrides
 }
 
-function tick(dtSeconds: number) {
+export function stepTelemetry(dtSeconds: number) {
   const store = useVehicleStore.getState()
   const { ignition, engine, telemetry } = store
   const t: TelemetrySnapshot = telemetry
-  const running = engine === 'RUNNING'
+  const running = engine === 'RUNNING' || engine === 'IDLE'
+  const driving = engine === 'RUNNING'
   const cranking = ignition === 'START'
 
   const next: Partial<TelemetrySnapshot> = {}
 
   // ---- Speed & RPM ----
-  let speed = t.speedKph.value
+  let speed = physicalSpeed
+  const previousSpeed=physicalSpeed
   let rpm = t.rpm.value
 
   if (running || cranking) {
@@ -88,7 +97,7 @@ function tick(dtSeconds: number) {
         autoTargetSpeed = clamp(autoTargetSpeed + wander, 0, 140)
       }
     }
-    const targetSpeed = clamp(autoTargetSpeed, 0, 220)
+    const targetSpeed = driving ? clamp(autoTargetSpeed, 0, 220) : 0
     const accelRate = targetSpeed > speed ? 22 : 34 // km/h per second
     speed = cranking ? 0 : approach(speed, targetSpeed, accelRate * dtSeconds)
 
@@ -108,12 +117,13 @@ function tick(dtSeconds: number) {
     rpm = approach(rpm, 0, 2500 * dtSeconds)
   }
   next.speedKph = makeChannel(Math.max(0, speed), 'OBD', ignition !== 'OFF')
+  physicalSpeed=speed
   next.rpm = makeChannel(Math.max(0, Math.round(rpm)), 'OBD', ignition !== 'OFF')
 
   // ---- Throttle & load ----
-  const speedDelta = speed - t.speedKph.value
+  const speedDelta = speed - previousSpeed
   const accelSignal = clamp((speedDelta / Math.max(dtSeconds, 0.001)) / 8, -1, 1)
-  const throttle = running ? clamp(20 + accelSignal * 60 + (rpm / 6800) * 15, 0, 100) : 0
+  const throttle = running ? speed<1&&Math.abs(speedDelta)<.1 ? 6 : clamp(20 + accelSignal * 60 + (rpm / 6800) * 15, 0, 100) : 0
   next.throttlePercent = makeChannel(throttle, 'OBD', running)
 
   const load =
@@ -211,17 +221,7 @@ function tick(dtSeconds: number) {
   } else if (overrides.mapAbsoluteKpa !== undefined) {
     boostKpa = approach(t.boostKpa.value, overrides.mapAbsoluteKpa - baro, 200 * dtSeconds)
   } else {
-    const throttleFrac = throttle / 100
-    const rpmFrac = clamp(rpm / 7000, 0, 1)
-    const vacuumTargetKpa = clamp(58 - throttleFrac * 58, 0, 58)
-    const spoolTarget = running && isTurbo ? clamp(throttleFrac * clamp(rpmFrac * 1.4, 0, 1), 0, 1) : 0
-    const spoolRateUp = 0.5 + rpmFrac * 3.2
-    const spoolRateDown = 2.8
-    boostSpool = approach(boostSpool, spoolTarget, (spoolTarget > boostSpool ? spoolRateUp : spoolRateDown) * dtSeconds)
-    const maxBoostKpa = vehicle.maxBoostBar * 100
-    const boostAboveAtmTarget = isTurbo ? boostSpool * maxBoostKpa : 0
-    const boostKpaTarget = boostAboveAtmTarget > 0.5 ? boostAboveAtmTarget : -vacuumTargetKpa * (1 - boostSpool)
-    boostKpa = approach(t.boostKpa.value, boostKpaTarget, 55 * dtSeconds)
+    boostKpa = stepBoost(t.boostKpa.value,rpm,throttle,load,isTurbo,vehicle.maxBoostBar,running,dtSeconds)
   }
   const boostAvailable = running && isTurbo
   next.barometricPressureKpa = makeChannel(baro, 'DERIVED', true)
@@ -242,19 +242,19 @@ function tick(dtSeconds: number) {
   const gps = store.connections.gps
   const gpsAvailable = gps === 'FIX'
   next.gpsSpeedKph = makeChannel(gpsAvailable ? clamp(next.speedKph.value + noise(1.5), 0, 240) : t.gpsSpeedKph.value, 'GPS', gpsAvailable)
-  next.satelliteCount = makeChannel(gpsAvailable ? 8 + Math.round(Math.random() * 4) : 0, 'GPS', gpsAvailable)
-  next.gpsAccuracyM = makeChannel(gpsAvailable ? 2.5 + Math.random() * 2 : 0, 'GPS', gpsAvailable)
+  next.satelliteCount = makeChannel(gpsAvailable ? overrides.satelliteCount ?? 8 + Math.round(Math.random() * 4) : 0, 'GPS', gpsAvailable)
+  next.gpsAccuracyM = makeChannel(gpsAvailable ? overrides.gpsAccuracyM ?? 2.5 + Math.random() * 2 : 0, 'GPS', gpsAvailable)
   if (gpsAvailable) {
     const headingRad = ((t.headingDeg.value % 360) * Math.PI) / 180
     const distanceDeg = (next.gpsSpeedKph.value * dtSeconds) / 3600 / 111
-    next.latitude = makeChannel(t.latitude.value + Math.cos(headingRad) * distanceDeg, 'GPS', true)
-    next.longitude = makeChannel(t.longitude.value + Math.sin(headingRad) * distanceDeg, 'GPS', true)
+    next.latitude = makeChannel(overrides.latitude ?? t.latitude.value + Math.cos(headingRad) * distanceDeg, 'GPS', true)
+    next.longitude = makeChannel(overrides.longitude ?? t.longitude.value + Math.sin(headingRad) * distanceDeg / Math.max(.01,Math.cos(t.latitude.value*Math.PI/180)), 'GPS', true)
     const nextHeading = overrides.headingDeg !== undefined ? overrides.headingDeg : t.headingDeg.value + noise(2)
     next.headingDeg = makeChannel((nextHeading + 360) % 360, 'GPS', true)
   } else {
-    next.latitude = t.latitude
-    next.longitude = t.longitude
-    next.headingDeg = t.headingDeg
+    next.latitude = {...t.latitude, available:false}
+    next.longitude = {...t.longitude, available:false}
+    next.headingDeg = {...t.headingDeg, available:false}
   }
   next.altitudeM = makeChannel(gpsAvailable ? t.altitudeM.value + noise(0.2) : t.altitudeM.value, 'GPS', gpsAvailable)
 
@@ -268,8 +268,12 @@ function tick(dtSeconds: number) {
 
   // ---- Speed source resolution ----
   const obdOk = store.connections.obd === 'CONNECTED'
-  const resolvedSpeed = obdOk ? next.speedKph.value : gpsAvailable ? next.gpsSpeedKph.value : 0
-  store.setSpeedSourceActive(obdOk ? 'OBD' : gpsAvailable ? 'GPS' : 'OBD')
+  const mode=useSettingsStore.getState().display.speedSourceMode
+  const useGps=mode==='GPS'||(mode==='AUTO'&&!obdOk&&gpsAvailable)
+  const speedAvailable=useGps?gpsAvailable:obdOk
+  const resolvedSpeed=speedAvailable?(useGps?next.gpsSpeedKph.value:next.speedKph.value):0
+  store.setSpeedSourceActive(useGps?'GPS':'OBD')
+  next.speedKph=makeChannel(resolvedSpeed,useGps?'GPS':'OBD',speedAvailable)
 
   // ---- Trip accumulators ----
   const distDelta = (resolvedSpeed * dtSeconds) / 3600
@@ -284,17 +288,18 @@ function tick(dtSeconds: number) {
   next.odometerKm = makeChannel(t.odometerKm.value + (running ? distDelta : 0), 'DERIVED')
 
   store.setTelemetry(next)
-  useMediaStore.getState().tick(dtSeconds)
 }
 
 export function startTelemetryEngine() {
   if (intervalHandle !== null) return
   lastTickAt = performance.now()
+  let audioLast=performance.now()
+  spectrumHandle=window.setInterval(()=>{const now=performance.now();useMediaStore.getState().tick(Math.min(.2,(now-audioLast)/1000));audioLast=now},40)
   intervalHandle = window.setInterval(() => {
     const now = performance.now()
     const dt = Math.min(0.5, (now - lastTickAt) / 1000)
     lastTickAt = now
-    tick(dt)
+    stepTelemetry(dt)
 
     secondAccumulator += dt
     if (secondAccumulator >= 1) {
@@ -305,6 +310,7 @@ export function startTelemetryEngine() {
 }
 
 export function stopTelemetryEngine() {
+  if(spectrumHandle!==null){window.clearInterval(spectrumHandle);spectrumHandle=null}
   if (intervalHandle !== null) {
     window.clearInterval(intervalHandle)
     intervalHandle = null
@@ -315,6 +321,7 @@ export function resetAutoDrive() {
   autoTargetSpeed = 0
   autoTargetTimer = 0
   boostSpool = 0
+  physicalSpeed = useVehicleStore.getState().telemetry.speedKph.value
 }
 
 export function resetBoostPeak() {

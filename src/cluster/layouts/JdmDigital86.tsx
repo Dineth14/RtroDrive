@@ -5,12 +5,15 @@ import { RetroGauge } from '../widgets/RetroGauge'
 import { WarningLampStrip } from '../widgets/WarningLampStrip'
 import { useDashboardData } from './useDashboardData'
 import { OdoTripClockRow, GpsMiniIndicator, MediaTicker } from './DashboardChrome'
+import { resolveAuxSlot } from '@/utils/auxSlots'
 
-export function JdmDigital86() {
-  const { telemetry, speedSourceActive, connections, display, warnings, vehicle, isPlaying, track } = useDashboardData()
+export function JdmDigital86({testValue}:{testValue?:number} = {}) {
+  const { telemetry, speedSourceActive, connections, display, warnings, vehicle, isPlaying, track } = useDashboardData(testValue)
+  const oil=resolveAuxSlot('OIL_PRESSURE',telemetry,vehicle)
 
   return (
-    <div className="rd-screen">
+    <div className="rd-screen rd-digital86">
+      <header className="rd-digital86-title"><span>RETRODRIVE / DIGITAL 86</span><span>{vehicle.nickname}</span><span>ELECTRONIC INSTRUMENT SYSTEM</span></header>
       <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', height: '100%', gap: 14 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr 110px', alignItems: 'center', gap: 16 }}>
           <VerticalBarGauge
@@ -46,7 +49,7 @@ export function JdmDigital86() {
         <RpmBar rpm={telemetry.rpm.value} redlineRpm={vehicle.redlineRpm} segments={56} />
 
         <div style={{ display: 'flex', justifyContent: 'center', padding: '2px 0' }}>
-          <WarningLampStrip />
+          <WarningLampStrip forceAllLit={testValue!==undefined}/>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
@@ -55,7 +58,7 @@ export function JdmDigital86() {
               <RetroGauge label="VOLT" value={telemetry.batteryVoltage.value} unit="V" min={9} max={16} displayValue={telemetry.batteryVoltage.value.toFixed(1)} available={telemetry.batteryVoltage.available} />
             </div>
             <div style={{ width: 130 }}>
-              <RetroGauge label="OIL" value={telemetry.oilPressureBar.value} unit="bar" min={0} max={6} displayValue={telemetry.oilPressureBar.value.toFixed(1)} available={telemetry.oilPressureBar.available} />
+              <RetroGauge label={oil.label} value={oil.value} unit={oil.unit} min={0} max={oil.key==='OIL_PRESSURE'?6:140} displayValue={oil.value.toFixed(oil.decimals)} available={oil.available} />
             </div>
           </div>
           <div style={{ flex: 1, maxWidth: 420 }}>

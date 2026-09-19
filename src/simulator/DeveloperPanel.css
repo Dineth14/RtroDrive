@@ -107,3 +107,4 @@
 .rd-dev-clear-btn:hover {
   border-color: #5a3a3a;
 }
+.rd-dev-profile-controls{display:grid;gap:12px}.rd-dev-profile-controls label{font-size:10px;color:#a9b6a7;display:grid;gap:6px}.rd-dev-profile-controls select{width:100%;background:#142019;color:#d1dbc9;padding:9px;border:1px solid #354331;font:11px monospace}.rd-dev-profile-controls input{width:100%}

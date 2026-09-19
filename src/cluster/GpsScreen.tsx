@@ -2,6 +2,9 @@ import { useMemo } from 'react'
 import { useVehicleStore } from '@/state/vehicleStore'
 import { headingToCompass } from './layouts/useDashboardData'
 import './GpsScreen.css'
+import { useSettingsStore } from '@/state/settingsStore'
+import { isClassicLayout } from '@/vehicleProfiles/profiles'
+import { ClassicNavigation } from './navigation/ClassicNavigation'
 
 const VIEW = 420
 
@@ -11,7 +14,9 @@ function project(lat: number, lon: number, lat0: number, lon0: number) {
   return { x: dx, y: dy }
 }
 
-function NavArrow({ kind }: { kind: string }) {
+export function NavArrow({ kind }: { kind: string }) {
+  if (kind === 'SLIGHT_LEFT') return <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="5"><path d="M43 58 V34 L18 9 M18 29 V9 H38"/></svg>
+  if (kind === 'U_TURN') return <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="5"><path d="M48 57 V23 A16 16 0 0 0 16 23 V45 M6 35 L16 45 L26 35"/></svg>
   if (kind === 'TURN_LEFT') {
     return (
       <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--cl-primary-bright)" strokeWidth="2">
@@ -53,6 +58,7 @@ function NavArrow({ kind }: { kind: string }) {
 }
 
 export function GpsScreen() {
+  const layout = useSettingsStore(s=>s.display.clusterLayout)
   const telemetry = useVehicleStore((s) => s.telemetry)
   const connections = useVehicleStore((s) => s.connections)
   const breadcrumb = useVehicleStore((s) => s.gpsBreadcrumb)
@@ -91,6 +97,7 @@ export function GpsScreen() {
     return { pathD: d, points: screenPts, originPt: screenPts[0], parkedPt: parkedScreen }
   }, [breadcrumb, heading, parkedLocation])
 
+  if (isClassicLayout(layout)) return <ClassicNavigation/>
   return (
     <div className="rd-screen">
       <div className="rd-gps">
@@ -108,7 +115,7 @@ export function GpsScreen() {
               <circle cx={VIEW / 2} cy={VIEW / 2} r={VIEW * 0.42} fill="none" stroke="var(--cl-grid-line)" strokeWidth={1} />
               <line x1={VIEW / 2 - 10} y1={VIEW / 2} x2={VIEW / 2 + 10} y2={VIEW / 2} stroke="var(--cl-primary-dim)" strokeWidth={1} />
               <line x1={VIEW / 2} y1={VIEW / 2 - 10} x2={VIEW / 2} y2={VIEW / 2 + 10} stroke="var(--cl-primary-dim)" strokeWidth={1} />
-              <text x={VIEW / 2} y={22} fill="var(--cl-primary-dim)" fontSize={13} textAnchor="middle">N</text>
+              <text x={VIEW / 2} y={22} fill="var(--cl-primary-dim)" fontSize={13} textAnchor="middle">{headingToCompass(heading)} · HEADING UP</text>
 
               {pathD && <path d={pathD} fill="none" stroke="var(--cl-primary)" strokeWidth={1.5} opacity={0.85} />}
               {originPt && <circle cx={originPt.x} cy={originPt.y} r={4} fill="var(--cl-amber)" />}
@@ -127,13 +134,15 @@ export function GpsScreen() {
             </svg>
           )}
 
-          {navMode === 'PHONE_ASSISTED' && navInstruction && (
+          {navMode === 'PHONE_ASSISTED' && navInstruction && connections.phone === 'CONNECTED' && (
             <div className="rd-gps-nav-banner">
               <NavArrow kind={navInstruction.kind} />
               <div className="rd-gps-nav-label">
                 {navInstruction.kind === 'STRAIGHT' && 'CONTINUE STRAIGHT'}
                 {navInstruction.kind === 'TURN_LEFT' && 'TURN LEFT'}
                 {navInstruction.kind === 'TURN_RIGHT' && 'TURN RIGHT'}
+                {navInstruction.kind === 'SLIGHT_LEFT' && 'SLIGHT LEFT'}
+                {navInstruction.kind === 'U_TURN' && 'MAKE A U-TURN'}
                 {navInstruction.kind === 'ROUNDABOUT' && `ROUNDABOUT — ${navInstruction.roundaboutExit ?? 1}${navInstruction.roundaboutExit === 2 ? 'ND' : navInstruction.roundaboutExit === 3 ? 'RD' : 'ST'} EXIT`}
                 {navInstruction.kind === 'DESTINATION' && 'DESTINATION REACHED'}
               </div>

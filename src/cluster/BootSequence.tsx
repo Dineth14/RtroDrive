@@ -1,103 +1,34 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useVehicleStore } from '@/state/vehicleStore'
-import { SevenSegmentGroup } from './widgets/SevenSegment'
-import { WarningLampStrip } from './widgets/WarningLampStrip'
-import { RpmBar } from './widgets/RpmBar'
-import './BootSequence.css'
-
-function connState(v: string): 'OK' | 'PENDING' | 'FAULT' {
-  if (v === 'CONNECTED' || v === 'FIX') return 'OK'
-  if (v === 'FAULT' || v === 'LOST' || v === 'UNAVAILABLE') return 'FAULT'
-  return 'PENDING'
-}
-
-function StatusLine({ label, state }: { label: string; state: 'OK' | 'PENDING' | 'FAULT' }) {
-  const text = state === 'OK' ? 'OK' : state === 'FAULT' ? 'FAULT' : label === 'GPS' ? 'SEARCH' : 'CONNECTING'
-  const color =
-    state === 'OK' ? 'var(--cl-primary-bright)' : state === 'FAULT' ? 'var(--cl-critical-red)' : 'var(--cl-warning-amber)'
-  return (
-    <div className="rd-boot-status-line">
-      <span>{label}</span>
-      <span className="rd-boot-status-dots">........</span>
-      <span style={{ color }}>{text}</span>
-    </div>
-  )
-}
-
+import { useSettingsStore } from '@/state/settingsStore'
+import { getVisualProfile, isClassicLayout } from '@/vehicleProfiles/profiles'
+import { CarSilhouette } from '@/vehicleProfiles/CarSilhouette'
+import { ClassicDashboard } from './layouts/ClassicLayouts'
+import { JdmGt93 } from './layouts/JdmGt93'
+import { JdmDigital86 } from './layouts/JdmDigital86'
+import { EuroDigital89 } from './layouts/EuroDigital89'
 export function BootSequence() {
-  const bootPhase = useVehicleStore((s) => s.bootPhase)
-  const connections = useVehicleStore((s) => s.connections)
-  const [sweepRpm, setSweepRpm] = useState(0)
-  const rafRef = useRef<number | null>(null)
-
-  useEffect(() => {
-    if (bootPhase !== 'RPM_SWEEP') return
-    const start = performance.now()
-    const duration = 700
-    const animate = (now: number) => {
-      const t = (now - start) / duration
-      if (t >= 1) {
-        setSweepRpm(0)
-        return
-      }
-      const value = t < 0.5 ? t * 2 * 7800 : (1 - t) * 2 * 7800
-      setSweepRpm(value)
-      rafRef.current = requestAnimationFrame(animate)
-    }
-    rafRef.current = requestAnimationFrame(animate)
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
-  }, [bootPhase])
-
-  return (
-    <div className="rd-boot">
-      {bootPhase === 'BLACK' && null}
-
-      {bootPhase === 'SEGMENT_TEST' && (
-        <>
-          <div className="rd-boot-logo">RETRODRIVE</div>
-          <div className="rd-boot-segrow">
-            <div className="rd-boot-segblock">
-              <SevenSegmentGroup text="888" litColor="var(--cl-primary-bright)" heightPx={56} />
-              <span className="rd-boot-segblock-label">RPM x100</span>
-            </div>
-            <div className="rd-boot-segblock">
-              <SevenSegmentGroup text="88.8" litColor="var(--cl-amber)" heightPx={56} />
-              <span className="rd-boot-segblock-label">VOLTS</span>
-            </div>
-            <div className="rd-boot-segblock">
-              <SevenSegmentGroup text="188" litColor="var(--cl-critical-red)" heightPx={56} />
-              <span className="rd-boot-segblock-label">DEG C</span>
-            </div>
-          </div>
-        </>
-      )}
-
-      {bootPhase === 'LAMP_TEST' && (
-        <>
-          <div className="rd-boot-sub">SYSTEM CHECK</div>
-          <div className="rd-boot-lamprow">
-            <WarningLampStrip forceAllLit />
-          </div>
-        </>
-      )}
-
-      {bootPhase === 'RPM_SWEEP' && (
-        <div style={{ width: 640 }}>
-          <RpmBar rpm={sweepRpm} redlineRpm={7500} />
-        </div>
-      )}
-
-      {bootPhase === 'STATUS_INIT' && (
-        <div className="rd-boot-status">
-          <StatusLine label="OBD" state={connState(connections.obd)} />
-          <StatusLine label="GPS" state={connState(connections.gps)} />
-          <StatusLine label="PHONE" state={connState(connections.phone)} />
-        </div>
-      )}
-
-      {bootPhase === 'SYSTEM_OK' && <div className="rd-boot-systemok">SYSTEM OK</div>}
-    </div>
-  )
+  const phase = useVehicleStore(s=>s.bootPhase)
+  const vehicle = useSettingsStore(s=>s.vehicleProfile)
+  const layout = useSettingsStore(s=>s.display.clusterLayout)
+  const visual = getVisualProfile(vehicle), classic = isClassicLayout(layout)
+  const [sweep,setSweep] = useState(0)
+  useEffect(()=>{
+    if(phase!=='RPM_SWEEP') return
+    let frame=0; const start=performance.now()
+    const tick=(now:number)=>{const p=Math.min(1,(now-start)/1000);setSweep(Math.sin(p*Math.PI));if(p<1)frame=requestAnimationFrame(tick)}
+    frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame)
+  },[phase])
+  if(phase==='BLACK') return <div style={{position:'absolute',inset:0,background:'#000'}}/>
+  if((phase==='RPM_SWEEP'||phase==='LAMP_TEST')&&layout==='JDM_DIGITAL_86')return <JdmDigital86 testValue={phase==='LAMP_TEST'?1:sweep}/>
+  if((phase==='RPM_SWEEP'||phase==='LAMP_TEST')&&layout==='EURO_DIGITAL_89')return <EuroDigital89 testValue={phase==='LAMP_TEST'?1:sweep}/>
+  if(phase==='RPM_SWEEP' || phase==='LAMP_TEST') return classic ? <ClassicDashboard testValue={phase==='LAMP_TEST'?0:sweep} variant={layout==='MINI_HERITAGE'?'mini':layout==='VINTAGE_TOURER'?'tourer':layout==='GRAND_TOURING_62'?'touring':'roadster'}/> : <JdmGt93 testValue={phase==='LAMP_TEST'?1:sweep}/>
+  const progress=phase==='SEGMENT_TEST'?.18:phase==='STATUS_INIT'?.7:1
+  return <div className={`rd-vehicle-boot ${classic?'rd-boot-classic':''}`}>
+    <h1>RETRODRIVE</h1><small>{classic?'PRECISION MOTORING INSTRUMENTS':'VEHICLE INTELLIGENCE / SERIES 04'}</small>
+    <CarSilhouette artwork={visual.carArtwork} animated/>
+    <h2>{vehicle.nickname}</h2>
+    <div className="rd-boot-checks">{(classic?['IGNITION','INSTRUMENTS','POSITION','AUDIO','READY']:['SYSTEM','ECU LINK','GPS','AUDIO','MEMORY']).map((label,i)=><div key={label}><span>{label}</span><i><b style={{width:`${Math.min(100,Math.max(0,progress*160-i*15))}%`}}/></i></div>)}</div>
+    <div className="rd-boot-progress"><i style={{width:`${progress*100}%`}}/></div><span className="rd-boot-caption">{phase==='SYSTEM_OK'?'READY FOR THE ROAD':classic?'Preparing your instruments':'INITIALIZING VEHICLE SYSTEMS'}</span>
+  </div>
 }

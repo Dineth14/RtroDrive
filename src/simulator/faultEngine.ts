@@ -1,5 +1,6 @@
 import { useVehicleStore } from '@/state/vehicleStore'
 import { useSettingsStore } from '@/state/settingsStore'
+import { useMediaStore } from '@/state/mediaStore'
 import type { ActiveWarning, WarningSeverity } from '@/types/telemetry'
 import type { HealthStatus } from '@/types/diagnostics'
 import { evaluateDiagnosticRules } from './diagnosticEngine'
@@ -8,6 +9,7 @@ import { criticalAlarm, speedChime, warningChime, infoChime, duckMedia } from '@
 let lastSpeedChimeAt = 0
 let wasBelowThreshold = true
 let voltageTrend: number[] = []
+let lastRepeatAt = 0
 
 function makeWarning(
   id: string,
@@ -38,10 +40,15 @@ export function evaluateFaultsAndHealth() {
   const settings = useSettingsStore.getState()
   const { telemetry, connections, engine, warnings, ignition } = vStore
   const thresholds = settings.warnings
-  const running = engine === 'RUNNING'
+  const running = engine === 'RUNNING' || engine === 'IDLE'
 
   const existingIds = new Set(warnings.map((w) => w.id))
   const desired: ActiveWarning[] = []
+  if(settings.vehicleProfile.isTurbocharged && telemetry.boostBar.available){
+    const boost=telemetry.boostBar.value
+    if(boost>=settings.vehicleProfile.boostCriticalBar) desired.push(makeWarning('boost-critical','CRITICAL','OVERBOOST','LIFT THROTTLE / CHECK BOOST CONTROL','boost',boost.toFixed(2)+' bar'))
+    else if(boost>=settings.vehicleProfile.boostWarningBar) desired.push(makeWarning('boost-warning','WARNING','BOOST HIGH','REDUCE ENGINE LOAD','boost',boost.toFixed(2)+' bar'))
+  }
 
   // ---- Fuel low ----
   if (telemetry.fuelPercent.available && telemetry.fuelPercent.value < thresholds.fuelLowPercent) {
@@ -107,6 +114,12 @@ export function evaluateFaultsAndHealth() {
     if (!desiredIds.has(w.id)) vStore.clearWarning(w.id)
   }
 
+  const currentWarnings=useVehicleStore.getState().warnings
+  const critical=currentWarnings.some(w=>w.severity==='CRITICAL')
+  useMediaStore.getState().setDucked(critical&&settings.sound.mediaDuckingEnabled)
+  const repeat=currentWarnings.find(w=>w.severity==='CRITICAL'&&!w.acknowledged)??currentWarnings.find(w=>w.severity==='WARNING'&&!w.acknowledged)
+  if(repeat&&Date.now()-lastRepeatAt>(repeat.severity==='CRITICAL'?2200:6000)) {playSeverity(repeat.severity);lastRepeatAt=Date.now()}
+
   // ---- Speed chime ----
   if (settings.sound.speedChimeEnabled && running) {
     const speed = telemetry.speedKph.value
@@ -153,7 +166,7 @@ export function evaluateFaultsAndHealth() {
     ? 'WARNING'
     : 'NORMAL'
   const connectivityStatus: HealthStatus =
-    connections.obd === 'CONNECTED' && connections.phone === 'CONNECTED' ? 'NORMAL' : 'OBSERVE'
+    connections.obd === 'CONNECTED' && connections.phone === 'CONNECTED' && connections.gps === 'FIX' ? 'NORMAL' : 'OBSERVE'
 
   vStore.updateHealthCategory('ENGINE', {
     status: engineStatus,
@@ -181,6 +194,7 @@ export function evaluateFaultsAndHealth() {
     statusNote: sensorsStatus === 'NORMAL' ? 'MONITORING' : 'CHECK SENSOR WIRING',
   })
   vStore.updateHealthCategory('CONNECTIVITY', {
+    label:'POSITION / LINKS',
     status: connectivityStatus,
     evidenceLines: [`OBD: ${connections.obd}`, `PHONE: ${connections.phone}`, `GPS: ${connections.gps}`],
     statusNote: connectivityStatus === 'NORMAL' ? 'ALL LINKS NOMINAL' : 'ONE OR MORE LINKS DEGRADED',
@@ -188,6 +202,7 @@ export function evaluateFaultsAndHealth() {
 }
 
 export function resetFaultEngineState() {
+  lastRepeatAt = 0
   lastSpeedChimeAt = 0
   wasBelowThreshold = true
   voltageTrend = []

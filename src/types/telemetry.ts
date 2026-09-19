@@ -67,7 +67,7 @@ export interface ParkedLocation {
   timestamp: number
 }
 
-export type NavInstructionKind = 'STRAIGHT' | 'TURN_LEFT' | 'TURN_RIGHT' | 'ROUNDABOUT' | 'DESTINATION'
+export type NavInstructionKind = 'STRAIGHT' | 'TURN_LEFT' | 'TURN_RIGHT' | 'SLIGHT_LEFT' | 'U_TURN' | 'ROUNDABOUT' | 'DESTINATION'
 
 export interface NavInstruction {
   kind: NavInstructionKind

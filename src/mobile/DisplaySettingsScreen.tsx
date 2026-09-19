@@ -5,13 +5,14 @@ import { SliderRow, ToggleRow } from './MobileControls'
 import './mobile.css'
 
 const THEMES: { id: ThemeName; label: string }[] = [
+  { id:'HERITAGE_IVORY', label:'HERITAGE IVORY' },
   { id: 'JDM_PHOSPHOR', label: 'JDM PHOSPHOR' },
   { id: 'JDM_AMBER', label: 'JDM AMBER' },
   { id: 'EURO_GREEN', label: 'EURO GREEN' },
   { id: 'MONO_LCD', label: 'MONO LCD' },
 ]
 
-const LAYOUTS: ClusterLayoutId[] = ['JDM_DIGITAL_86', 'EURO_DIGITAL_89', 'JDM_GT_93', 'TOURING_96', 'CLASSIC_ELECTRONIC']
+const LAYOUTS = Object.keys(CLUSTER_LAYOUT_LABELS) as ClusterLayoutId[]
 
 const PRIMARY_COLORS: { id: PrimaryColorName; label: string; theme: ThemeName; swatch: string }[] = [
   { id: 'PHOSPHOR_GREEN', label: 'PHOSPHOR GREEN', theme: 'JDM_PHOSPHOR', swatch: '#8fcb83' },

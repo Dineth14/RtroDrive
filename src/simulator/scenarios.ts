@@ -4,6 +4,7 @@ import { useSettingsStore } from '@/state/settingsStore'
 import { useMediaStore } from '@/state/mediaStore'
 import { clearAllOverrides, setOverride, clearOverride, setForcedUnavailable } from './telemetryEngine'
 import { createDtc } from './diagnosticEngine'
+import { cancelBootSequence } from './bootController'
 
 interface Keyframe {
   atMs: number
@@ -334,6 +335,10 @@ export const SCENARIOS: Record<ScenarioId, ScenarioDef> = {
       { atMs: 20000, values: { coolantTempC: 90 } },
     ],
   },
+  PARK_VEHICLE: {
+    id:'PARK_VEHICLE', label:'Park Vehicle', durationMs:4000, releaseOverridesAtEnd:true,
+    keyframes:[{atMs:0,values:{speedKph:0,rpm:780}},{atMs:4000,values:{speedKph:0,rpm:0},onReach:()=>{const s=useVehicleStore.getState();s.finishTrip();s.setIgnition('OFF');s.setEngine('OFF')}}],
+  },
   NIGHT_DRIVE: {
     id: 'NIGHT_DRIVE',
     label: 'Night Drive',
@@ -359,12 +364,16 @@ let running: RunningScenario | null = null
 let rafHandle: number | null = null
 
 export function runScenario(id: ScenarioId) {
+  cancelBootSequence()
+  stopScenario()
   const def = SCENARIOS[id]
   if (!def) return
   clearAllOverrides()
   useVehicleStore.getState().setScenario(id)
   useVehicleStore.getState().setIgnition('ON')
   useVehicleStore.getState().setEngine('RUNNING')
+  useVehicleStore.getState().setBootPhase('DONE')
+  useVehicleStore.getState().setConnections({obd:'CONNECTED',gps:'FIX',phone:'CONNECTED'})
   def.setup?.()
   running = { def, startedAt: performance.now(), firedKeyframes: new Set() }
   loop()

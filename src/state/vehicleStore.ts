@@ -200,10 +200,12 @@ export const useVehicleStore = create<VehicleState>()(
           if (state === 'OFF' && s.ignition !== 'OFF' && s.telemetry.latitude.available) {
             return {
               ignition: state,
+              engine: 'OFF',
+              bootPhase: 'IDLE',
               parkedLocation: { lat: s.telemetry.latitude.value, lon: s.telemetry.longitude.value, timestamp: Date.now() },
             }
           }
-          return { ignition: state }
+          return state==='OFF'?{ignition:state,engine:'OFF',bootPhase:'IDLE'}:{ ignition: state }
         }),
       setEngine: (state) => set({ engine: state }),
       setTelemetry: (patch) => set((s) => ({ telemetry: { ...s.telemetry, ...patch } })),

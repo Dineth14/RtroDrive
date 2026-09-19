@@ -7,8 +7,12 @@ import { setOverride, clearAllOverrides } from './telemetryEngine'
 import { runScenario, clearScenarioOverrides } from './scenarios'
 import { triggerBootSequence } from './bootController'
 import './DeveloperPanel.css'
+import { VEHICLE_PRESETS, type ClusterLayoutId } from '@/types/vehicle'
+import { CLUSTER_LAYOUT_LABELS } from '@/cluster/layouts/registry'
+import { getVisualProfile } from '@/vehicleProfiles/profiles'
 
 const SCENARIOS: { id: ScenarioId; label: string }[] = [
+  { id: 'PARK_VEHICLE', label: 'Park Vehicle' },
   { id: 'NORMAL_COLD_START', label: 'Normal Cold Start' },
   { id: 'NORMAL_HIGHWAY_CRUISE', label: 'Normal Highway Cruise' },
   { id: 'TRAFFIC_IDLE', label: 'Traffic / Idle' },
@@ -37,6 +41,8 @@ const SCENARIOS: { id: ScenarioId; label: string }[] = [
 const HARDWARE_KEYS = ['can', 'obdProtocol', 'gnss', 'sdCard', 'rtc', 'bluetooth', 'wifi', 'audio'] as const
 
 const NAV_KINDS: { kind: NavInstructionKind; label: string }[] = [
+  { kind: 'SLIGHT_LEFT', label: 'Slight Left' },
+  { kind: 'U_TURN', label: 'U-turn' },
   { kind: 'STRAIGHT', label: 'Straight' },
   { kind: 'TURN_LEFT', label: 'Turn Left' },
   { kind: 'TURN_RIGHT', label: 'Turn Right' },
@@ -45,6 +51,7 @@ const NAV_KINDS: { kind: NavInstructionKind; label: string }[] = [
 ]
 
 export function DeveloperPanel() {
+  const display=useSettingsStore(s=>s.display), updateDisplay=useSettingsStore(s=>s.updateDisplay), setPreset=useSettingsStore(s=>s.setVehiclePresetById)
   const ignition = useVehicleStore((s) => s.ignition)
   const engine = useVehicleStore((s) => s.engine)
   const telemetry = useVehicleStore((s) => s.telemetry)
@@ -112,6 +119,7 @@ export function DeveloperPanel() {
   return (
     <div className="rd-dev">
       <div className="rd-dev-title">DEVELOPER CONSOLE</div>
+      <div className="rd-dev-profile-controls"><label>Vehicle personality<select value={vehicle.id} onChange={e=>setPreset(e.target.value)}>{VEHICLE_PRESETS.map(p=><option key={p.id} value={p.id}>{p.nickname}</option>)}</select></label><label>Era<select value={getVisualProfile(vehicle).era} onChange={e=>setPreset(e.target.value==='CLASSIC_60'?'classic60':e.target.value==='DIGITAL_80'?'ae86':'jzx100')}><option value="CLASSIC_60">1950s / 1960s Analogue</option><option value="DIGITAL_80">1980s Electronic</option><option value="PERFORMANCE_90">1990s Performance</option></select></label><label>Instrument layout<select value={display.clusterLayout} onChange={e=>updateDisplay({clusterLayout:e.target.value as ClusterLayoutId})}>{Object.entries(CLUSTER_LAYOUT_LABELS).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></label><label>Ambient light · {display.ambientLight}%<input aria-label="Ambient light" type="range" min="0" max="100" value={display.ambientLight} onChange={e=>updateDisplay({ambientLight:Number(e.target.value),autoBrightness:true})}/></label><button className="rd-dev-btn" onClick={()=>updateDisplay({nightMode:!display.nightMode})}>{display.nightMode?'NIGHT':'DAY'} ILLUMINATION</button></div>
 
       <div>
         <div className="rd-dev-section-title">Ignition</div>
@@ -154,7 +162,7 @@ export function DeveloperPanel() {
         <div className="rd-dev-btn-row" style={{ marginBottom: 6 }}>
           <button
             className={`rd-dev-btn${vehicle.isTurbocharged ? ' active' : ''}`}
-            onClick={() => setVehicleProfile({ ...vehicle, isTurbocharged: !vehicle.isTurbocharged })}
+            onClick={() => setVehicleProfile({ ...vehicle, isTurbocharged: !vehicle.isTurbocharged, maxBoostBar:vehicle.maxBoostBar||1.5, boostWarningBar:vehicle.boostWarningBar||1.2, boostCriticalBar:vehicle.boostCriticalBar||1.4 })}
           >
             TURBOCHARGED: {vehicle.isTurbocharged ? 'YES' : 'NO'}
           </button>
@@ -198,6 +206,10 @@ export function DeveloperPanel() {
           ))}
         </div>
         {slider('Heading', 'headingDeg', telemetry.headingDeg.value, 0, 359, 1, '°')}
+        {slider('Latitude', 'latitude', telemetry.latitude.value, -90, 90, .0001, '°')}
+        {slider('Longitude', 'longitude', telemetry.longitude.value, -180, 180, .0001, '°')}
+        {slider('Satellites', 'satelliteCount', telemetry.satelliteCount.value, 0, 24, 1, '')}
+        {slider('Accuracy', 'gpsAccuracyM', telemetry.gpsAccuracyM.value, 1, 100, .5, ' m')}
         <div style={{ fontSize: 11, color: 'var(--cl-muted-text)' }}>
           Satellites: {telemetry.satelliteCount.value} &nbsp; Accuracy: ±{telemetry.gpsAccuracyM.value.toFixed(1)}m
         </div>
@@ -222,10 +234,10 @@ export function DeveloperPanel() {
               onClick={() =>
                 setNavInstruction(
                   n.kind === 'DESTINATION'
-                    ? { kind: n.kind, distanceM: 0 }
+                    ? { kind: n.kind, distanceM: 0, destinationDistanceKm:0, destinationEtaMin:0 }
                     : n.kind === 'ROUNDABOUT'
-                      ? { kind: n.kind, distanceM: 400, roundaboutExit: 2 }
-                      : { kind: n.kind, distanceM: 350 }
+                      ? { kind: n.kind, distanceM: 400, roundaboutExit: 2, destinationDistanceKm:8.2, destinationEtaMin:14 }
+                      : { kind: n.kind, distanceM: 350, destinationDistanceKm:8.2, destinationEtaMin:14 }
                 )
               }
             >

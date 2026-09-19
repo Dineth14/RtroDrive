@@ -5,8 +5,15 @@ import { EuroDigital89 } from './EuroDigital89'
 import { JdmGt93 } from './JdmGt93'
 import { Touring96 } from './Touring96'
 import { ClassicElectronic } from './ClassicElectronic'
+import { CrtElectronic } from './CrtElectronic'
+import { ClassicRoadster60, GrandTouring62, MiniHeritage, VintageTourer } from './ClassicLayouts'
 
 export const CLUSTER_LAYOUTS: Record<ClusterLayoutId, ComponentType> = {
+  CLASSIC_ROADSTER_60: ClassicRoadster60,
+  GRAND_TOURING_62: GrandTouring62,
+  MINI_HERITAGE: MiniHeritage,
+  VINTAGE_TOURER: VintageTourer,
+  CRT_ELECTRONIC: CrtElectronic,
   JDM_DIGITAL_86: JdmDigital86,
   EURO_DIGITAL_89: EuroDigital89,
   JDM_GT_93: JdmGt93,
@@ -15,6 +22,11 @@ export const CLUSTER_LAYOUTS: Record<ClusterLayoutId, ComponentType> = {
 }
 
 export const CLUSTER_LAYOUT_LABELS: Record<ClusterLayoutId, string> = {
+  CLASSIC_ROADSTER_60: 'CLASSIC ROADSTER 60',
+  GRAND_TOURING_62: 'GRAND TOURING 62',
+  MINI_HERITAGE: 'MINI HERITAGE',
+  VINTAGE_TOURER: 'VINTAGE TOURER',
+  CRT_ELECTRONIC: 'CRT ELECTRONIC',
   JDM_DIGITAL_86: 'JDM DIGITAL 86',
   EURO_DIGITAL_89: 'EURO DIGITAL 89',
   JDM_GT_93: 'JDM GT 93',

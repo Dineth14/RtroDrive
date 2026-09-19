@@ -7,7 +7,10 @@ import type {
   VehicleProfile,
   WarningThresholds,
 } from '@/types/vehicle'
-import { VEHICLE_PRESETS, DEFAULT_LAYOUT_FOR_VEHICLE } from '@/types/vehicle'
+import { VEHICLE_PRESETS } from '@/types/vehicle'
+import { getVisualProfile } from '@/vehicleProfiles/profiles'
+import { useMediaStore } from './mediaStore'
+const defaultVehicle = VEHICLE_PRESETS.find(p => p.id === 'jzx100')!
 
 interface SettingsState {
   vehicleProfile: VehicleProfile
@@ -26,7 +29,7 @@ interface SettingsState {
 
 const defaultDisplay: DisplaySettings = {
   theme: 'JDM_PHOSPHOR',
-  clusterLayout: 'JDM_DIGITAL_86',
+  clusterLayout: 'JDM_GT_93',
   primaryColor: 'PHOSPHOR_GREEN',
   brightness: 85,
   autoBrightness: false,
@@ -60,19 +63,25 @@ const defaultWarnings: WarningThresholds = {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      vehicleProfile: VEHICLE_PRESETS[0],
+      vehicleProfile: defaultVehicle,
       display: defaultDisplay,
       sound: defaultSound,
       warnings: defaultWarnings,
 
-      setVehicleProfile: (profile) => set({ vehicleProfile: profile }),
+      setVehicleProfile: (profile) => set(s=>{
+        if(s.vehicleProfile.id===profile.id)return {vehicleProfile:profile}
+        const visual=getVisualProfile(profile)
+        useMediaStore.getState().setVisualStyle(visual.defaultMediaTheme)
+        return {vehicleProfile:profile,display:{...s.display,clusterLayout:visual.defaultClusterTheme,theme:visual.palette}}
+      }),
       setVehiclePresetById: (id) => {
         const preset = VEHICLE_PRESETS.find((p) => p.id === id)
         if (!preset) return
-        const layout = DEFAULT_LAYOUT_FOR_VEHICLE[id]
+        const visual = getVisualProfile(preset)
+        useMediaStore.getState().setVisualStyle(visual.defaultMediaTheme)
         set((s) => ({
           vehicleProfile: preset,
-          display: layout ? { ...s.display, clusterLayout: layout } : s.display,
+          display: { ...s.display, clusterLayout: visual.defaultClusterTheme, theme: visual.palette },
         }))
       },
       setTheme: (theme) => set((s) => ({ display: { ...s.display, theme } })),
@@ -80,21 +89,23 @@ export const useSettingsStore = create<SettingsState>()(
       updateSound: (patch) => set((s) => ({ sound: { ...s.sound, ...patch } })),
       updateWarningThresholds: (patch) =>
         set((s) => ({ warnings: { ...s.warnings, ...patch } })),
-      resetToDefaults: () =>
+      resetToDefaults: () => {
+        useMediaStore.getState().setVisualStyle('GRAPHIC_EQ_91')
         set({
-          vehicleProfile: VEHICLE_PRESETS[0],
+          vehicleProfile: defaultVehicle,
           display: defaultDisplay,
           sound: defaultSound,
           warnings: defaultWarnings,
-        }),
+        })
+      },
     }),
     {
       name: 'retrodrive-settings',
-      version: 2,
+      version: 4,
       migrate: (persisted) => {
         const p = (persisted ?? {}) as Partial<SettingsState>
         return {
-          vehicleProfile: p.vehicleProfile ?? VEHICLE_PRESETS[0],
+          vehicleProfile: p.vehicleProfile ?? defaultVehicle,
           display: { ...defaultDisplay, ...(p.display ?? {}) },
           sound: { ...defaultSound, ...(p.sound ?? {}) },
           warnings: { ...defaultWarnings, ...(p.warnings ?? {}) },

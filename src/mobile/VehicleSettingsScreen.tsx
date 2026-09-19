@@ -40,7 +40,7 @@ export function VehicleSettingsScreen() {
 
       <div className="rd-m-card">
         <div className="rd-m-card-title">FORCED INDUCTION</div>
-        <ToggleRow label="Turbocharged" on={profile.isTurbocharged} onChange={(v) => setVehicleProfile({ ...profile, isTurbocharged: v })} />
+        <ToggleRow label="Turbocharged" on={profile.isTurbocharged} onChange={(v) => setVehicleProfile({ ...profile, isTurbocharged: v, maxBoostBar:profile.maxBoostBar||1.5, boostWarningBar:profile.boostWarningBar||1.2, boostCriticalBar:profile.boostCriticalBar||1.4 })} />
         {profile.isTurbocharged && (
           <>
             <div className="rd-m-row">

@@ -1,9 +1,9 @@
-export type ThemeName = 'JDM_PHOSPHOR' | 'JDM_AMBER' | 'EURO_GREEN' | 'MONO_LCD'
+export type ThemeName = 'JDM_PHOSPHOR' | 'JDM_AMBER' | 'EURO_GREEN' | 'MONO_LCD' | 'HERITAGE_IVORY'
 export type SpeedUnit = 'KPH' | 'MPH'
 export type TempUnit = 'C' | 'F'
 export type BoostUnit = 'BAR' | 'PSI'
 
-export type ClusterLayoutId = 'JDM_DIGITAL_86' | 'EURO_DIGITAL_89' | 'JDM_GT_93' | 'TOURING_96' | 'CLASSIC_ELECTRONIC'
+export type ClusterLayoutId = 'JDM_DIGITAL_86' | 'EURO_DIGITAL_89' | 'JDM_GT_93' | 'TOURING_96' | 'CLASSIC_ELECTRONIC' | 'CLASSIC_ROADSTER_60' | 'GRAND_TOURING_62' | 'MINI_HERITAGE' | 'VINTAGE_TOURER' | 'CRT_ELECTRONIC'
 
 export type AuxSlotValue =
   | 'BOOST'
@@ -73,6 +73,13 @@ export interface DisplaySettings {
 }
 
 export const VEHICLE_PRESETS: VehicleProfile[] = [
+  ...[
+    ['ae86', 'LIGHTWEIGHT 86', 1986, 7600],
+    ['landcruiser', 'EXPEDITION 4×4', 1980, 5000],
+    ['classic60', 'CLASSIC ROADSTER', 1960, 6000],
+    ['digital80', 'ELECTRONIC 80', 1989, 7000],
+    ['gt90', 'GRAND TOURER', 1993, 7000],
+  ].map(([id, nickname, year, redline]) => ({ id: String(id), nickname: String(nickname), year: Number(year), redlineRpm: Number(redline), manufacturer: 'Independent', model: String(nickname), engine: 'Simulated petrol', fuelType: 'Petrol', speedUnit: 'KPH' as const, tempUnit: 'C' as const, isTurbocharged: false, boostUnit: 'BAR' as const, maxBoostBar: 1.5, boostWarningBar: 1.2, boostCriticalBar: 1.4 })),
   {
     id: 'jzx100',
     nickname: 'JZX100 MARK II',

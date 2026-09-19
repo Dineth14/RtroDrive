@@ -2,10 +2,13 @@ import { useVehicleStore } from '@/state/vehicleStore'
 import { useSettingsStore } from '@/state/settingsStore'
 import './WarningLampStrip.css'
 
-type LampId = 'ENGINE' | 'OIL' | 'BATTERY' | 'TEMP' | 'BRAKE' | 'ABS'
+type LampId = 'ENGINE' | 'OIL' | 'BATTERY' | 'TEMP' | 'BRAKE' | 'ABS' | 'BOOST' | 'FUEL' | 'TRACTION'
 
 function Icon({ id }: { id: LampId }) {
   switch (id) {
+    case 'BOOST': return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 12 L18 7 M4 20 H20"/></svg>
+    case 'FUEL': return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 21 V4 H14 V21 M2 21 H16 M5 6 H12 V11 H5 M14 10 H17 V18 Q21 21 21 17 V8 L17 4"/></svg>
+    case 'TRACTION': return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 13 L7 5 H17 L20 13 Z M6 13 V16 M18 13 V16 M6 18 Q11 20 5 23 M18 18 Q13 20 19 23"/></svg>
     case 'ENGINE':
       return (
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -77,6 +80,9 @@ export function WarningLampStrip({ forceAllLit = false }: WarningLampStripProps)
   const absLit = forceAllLit
 
   const lamps: { id: LampId; lit: boolean; color: string }[] = [
+    { id:'BOOST',lit:forceAllLit||warnings.some(w=>w.source==='boost'),color:'var(--cl-critical-red)' },
+    { id:'FUEL',lit:forceAllLit||telemetry.fuelPercent.value<thresholds.fuelLowPercent,color:'var(--cl-warning-amber)' },
+    { id:'TRACTION',lit:forceAllLit,color:'var(--cl-warning-amber)' },
     { id: 'ENGINE', lit: engineLit, color: 'var(--cl-warning-amber)' },
     { id: 'OIL', lit: oilLit, color: 'var(--cl-critical-red)' },
     { id: 'BATTERY', lit: batteryLit, color: 'var(--cl-warning-amber)' },

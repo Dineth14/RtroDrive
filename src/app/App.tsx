@@ -17,6 +17,8 @@ function clamp(v: number, lo: number, hi: number) {
 }
 
 export function App() {
+  const soundSettings=useSettingsStore(s=>s.sound)
+  useEffect(()=>configureAudio({masterVolume:soundSettings.masterVolume/100,warningVolume:soundSettings.warningVolume/100,soundEnabled:soundSettings.soundEnabled}),[soundSettings])
   const [showDev, setShowDev] = useState(true)
   const [showPhone, setShowPhone] = useState(true)
   const [scale, setScale] = useState(0.7)
@@ -45,9 +47,10 @@ export function App() {
     const el = clusterAreaRef.current
     if (!el) return
     const compute = () => {
-      const availW = window.innerWidth * (showPhone || showDev ? 0.55 : 0.85)
+      const sideWidth=(showPhone?414:0)+(showDev?364:0)
+      const availW = window.innerWidth>1100 ? window.innerWidth-sideWidth-130 : window.innerWidth-100
       const availH = window.innerHeight - 140
-      const s = clamp(Math.min(availW / CLUSTER_WIDTH, availH / CLUSTER_HEIGHT), 0.35, 1.3)
+      const s = clamp(Math.min(availW / CLUSTER_WIDTH, availH / CLUSTER_HEIGHT), 0.25, 1.3)
       setScale(s)
     }
     compute()

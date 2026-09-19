@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { MediaVisualStyle, Track, VisualizerMode } from '@/types/media'
 
 export const TRACKS: Track[] = [
@@ -16,6 +17,8 @@ let bandTargets = new Array(BAND_COUNT).fill(0.1)
 let bandRetarget = new Array(BAND_COUNT).fill(0)
 
 interface MediaStoreState {
+  ducked: boolean
+  setDucked: (value: boolean) => void
   isPlaying: boolean
   currentTrackId: string
   elapsedSeconds: number
@@ -36,12 +39,14 @@ interface MediaStoreState {
   currentTrack: () => Track
 }
 
-export const useMediaStore = create<MediaStoreState>((set, get) => ({
+export const useMediaStore = create<MediaStoreState>()(persist((set, get) => ({
+  ducked: false,
+  setDucked: value=>set({ducked:value}),
   isPlaying: false,
   currentTrackId: TRACKS[0].id,
   elapsedSeconds: 0,
   bluetoothConnected: true,
-  visualStyle: 'CASSETTE_86',
+  visualStyle: 'GRAPHIC_EQ_91',
   visualizerMode: 'SPECTRUM',
   levels: new Array(BAND_COUNT).fill(0.08),
 
@@ -85,7 +90,7 @@ export const useMediaStore = create<MediaStoreState>((set, get) => ({
         const bias = i < 3 ? 0.55 : i < 8 ? 0.4 : 0.25
         bandTargets[i] = Math.min(1, Math.max(0.06, neighbour * 0.4 + Math.random() * bias + 0.08))
       }
-      const target = bandTargets[i]
+      const target = bandTargets[i] * (s.ducked ? .15 : 1)
       const rate = target > nextLevels[i] ? 9 : 2.6
       nextLevels[i] = nextLevels[i] + (target - nextLevels[i]) * Math.min(1, rate * dtSeconds)
     }
@@ -96,4 +101,4 @@ export const useMediaStore = create<MediaStoreState>((set, get) => ({
   setVisualizerMode: (mode) => set({ visualizerMode: mode }),
   setBluetoothConnected: (v) => set({ bluetoothConnected: v }),
   currentTrack: () => TRACKS.find((t) => t.id === get().currentTrackId) ?? TRACKS[0],
-}))
+}), { name: 'retrodrive-media', partialize: s=>({visualStyle:s.visualStyle,visualizerMode:s.visualizerMode,currentTrackId:s.currentTrackId}) }))

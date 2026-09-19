@@ -77,3 +77,4 @@
   padding: 2px 8px;
   background: rgba(0, 0, 0, 0.5);
 }
+.rd-warn-box,.rd-warn-box.critical{left:34px;right:34px;top:auto;bottom:30px;transform:none;min-width:0;padding:12px 20px;display:grid;grid-template-columns:1fr auto;gap:6px 18px;text-align:left;align-items:center;border-width:1px}.rd-warn-box .rd-warn-title,.rd-warn-box.critical .rd-warn-title{font-size:19px;letter-spacing:2px}.rd-warn-box .rd-warn-value,.rd-warn-box.critical .rd-warn-value{font-size:21px}.rd-warn-detail{font-size:11px;letter-spacing:.5px;max-width:630px}.rd-warning-driving-data{font:15px monospace;color:var(--cl-primary-bright);text-align:right}.rd-warn-ack{grid-column:2;grid-row:2/4;margin:0;color:var(--cl-primary-bright);padding:10px}.rd-cluster[data-era="CLASSIC_60"] .rd-warn-box{border:3px double #aa8c5f;background:#131a12;font-family:Georgia,serif}

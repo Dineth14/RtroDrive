@@ -13,7 +13,15 @@ function clearBootTimers() {
 export function triggerBootSequence() {
   clearBootTimers()
   const store = useVehicleStore.getState()
-  store.clearBreadcrumb()
+  store.setIgnition('ON')
+  store.setActiveClusterScreen('DASHBOARD')
+  if (!useSettingsStore.getState().display.startupAnimationEnabled) {
+    store.setBootPhase('DONE')
+    store.setConnections({ obd: 'CONNECTED', gps: 'FIX', phone: 'CONNECTED', audio: 'CONNECTED' })
+    store.setHardware({can:'CONNECTED',obdProtocol:'CONNECTED',gnss:'CONNECTED'})
+    store.setEngine('IDLE')
+    return
+  }
   resetAutoDrive()
 
   store.setBootPhase('BLACK')
@@ -21,7 +29,7 @@ export function triggerBootSequence() {
   store.setHardware({ can: 'CONNECTING', obdProtocol: 'CONNECTING', gnss: 'CONNECTING' })
 
   const schedule = (ms: number, fn: () => void) => {
-    bootTimers.push(window.setTimeout(fn, ms))
+    bootTimers.push(window.setTimeout(()=>{if(useVehicleStore.getState().ignition!=='OFF')fn()}, ms))
   }
 
   schedule(150, () => {
@@ -29,15 +37,15 @@ export function triggerBootSequence() {
     store.setBootPhase('SEGMENT_TEST')
   })
 
-  schedule(650, () => {
+  schedule(2300, () => {
     store.setBootPhase('LAMP_TEST')
   })
 
-  schedule(1050, () => {
+  schedule(2550, () => {
     store.setBootPhase('RPM_SWEEP')
   })
 
-  schedule(1750, () => {
+  schedule(1250, () => {
     store.setBootPhase('STATUS_INIT')
   })
 
@@ -53,11 +61,11 @@ export function triggerBootSequence() {
     store.setConnections({ phone: 'CONNECTED' })
   })
 
-  schedule(2650, () => {
+  schedule(3550, () => {
     store.setBootPhase('SYSTEM_OK')
   })
 
-  schedule(3150, () => {
+  schedule(3900, () => {
     store.setBootPhase('DONE')
     store.setEngine('IDLE')
   })
