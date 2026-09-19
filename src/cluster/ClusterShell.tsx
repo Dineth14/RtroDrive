@@ -20,6 +20,7 @@ export function ClusterShell() {
   const bootPhase = useVehicleStore((s) => s.bootPhase)
   const ignition = useVehicleStore((s) => s.ignition)
   const activeScreen = useVehicleStore((s) => s.activeClusterScreen)
+  const hasWarnings = useVehicleStore((s) => s.warnings.length > 0)
 
   useEffect(() => {
     if (rootRef.current) applyClusterTheme(theme, rootRef.current)
@@ -50,7 +51,7 @@ export function ClusterShell() {
           {activeScreen === 'MEDIA' && <MediaScreen />}
           {activeScreen === 'TEST' && <TestModeScreen />}
           <WarningOverlay />
-          <div className="rd-nav-hint">1 DASH · 2 DIAG · 3 TRIP · 4 MEDIA · H HEALTH</div>
+          {!hasWarnings && <div className="rd-nav-hint">1 DASH · 2 DIAG · 3 TRIP · 4 MEDIA · H HEALTH</div>}
         </>
       )}
 
