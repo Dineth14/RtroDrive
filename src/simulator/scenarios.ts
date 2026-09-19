@@ -2,6 +2,7 @@ import type { ScenarioId } from '@/types/scenario'
 import { useVehicleStore } from '@/state/vehicleStore'
 import { useSettingsStore } from '@/state/settingsStore'
 import { useMediaStore } from '@/state/mediaStore'
+import { useExpeditionStore } from '@/state/expeditionStore'
 import { clearAllOverrides, setOverride, clearOverride, setForcedUnavailable } from './telemetryEngine'
 import { createDtc } from './diagnosticEngine'
 import { cancelBootSequence } from './bootController'
@@ -352,6 +353,161 @@ export const SCENARIOS: Record<ScenarioId, ScenarioDef> = {
       { atMs: 6000, values: { speedKph: 90, rpm: 2800 } },
     ],
   },
+  CLASSIC_CRUISE: {
+    id: 'CLASSIC_CRUISE',
+    label: 'Classic Cruise',
+    durationMs: 8000,
+    releaseOverridesAtEnd: true,
+    keyframes: [
+      { atMs: 0, values: { speedKph: 15, rpm: 900 } },
+      { atMs: 8000, values: { speedKph: 65, rpm: 2400 } },
+    ],
+  },
+  CITY_NAV: {
+    id: 'CITY_NAV',
+    label: 'City Nav',
+    durationMs: 14000,
+    releaseOverridesAtEnd: true,
+    setup: () => {
+      const store = useVehicleStore.getState()
+      store.setConnections({ gps: 'FIX' })
+      store.setNavMode('PHONE_ASSISTED')
+      store.setNavInstruction({ kind: 'STRAIGHT', distanceM: 220 })
+    },
+    keyframes: [
+      { atMs: 0, values: { speedKph: 35, rpm: 1800 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'STRAIGHT', distanceM: 220 }) },
+      { atMs: 4000, values: { speedKph: 15 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'TURN_RIGHT', distanceM: 60 }) },
+      { atMs: 6000, values: { speedKph: 25 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'STRAIGHT', distanceM: 300, destinationDistanceKm: 1.4, destinationEtaMin: 4 }) },
+      { atMs: 14000, values: { speedKph: 5 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'DESTINATION', distanceM: 0 }) },
+    ],
+  },
+  HIGHWAY_NAV: {
+    id: 'HIGHWAY_NAV',
+    label: 'Highway Nav',
+    durationMs: 12000,
+    releaseOverridesAtEnd: true,
+    setup: () => {
+      const store = useVehicleStore.getState()
+      store.setConnections({ gps: 'FIX' })
+      store.setNavMode('PHONE_ASSISTED')
+      store.setNavInstruction({ kind: 'STRAIGHT', distanceM: 12000, destinationDistanceKm: 84, destinationEtaMin: 52 })
+    },
+    keyframes: [
+      { atMs: 0, values: { speedKph: 90, rpm: 2800 } },
+      { atMs: 6000, values: { speedKph: 118, rpm: 3200 } },
+      { atMs: 10000, values: { speedKph: 108 }, onReach: () => useVehicleStore.getState().setNavInstruction({ kind: 'TURN_RIGHT', distanceM: 900, destinationDistanceKm: 4, destinationEtaMin: 5 }) },
+      { atMs: 12000, values: { speedKph: 90 } },
+    ],
+  },
+  PHONE_NAV_LOSS: {
+    id: 'PHONE_NAV_LOSS',
+    label: 'Phone Nav Loss',
+    durationMs: 1000,
+    keyframes: [{ atMs: 0 }, { atMs: 1000 }],
+    setup: () => {
+      useVehicleStore.getState().setConnections({ phone: 'UNAVAILABLE' })
+      useVehicleStore.getState().setNavMode('STANDALONE')
+    },
+  },
+  EXPEDITION_START: {
+    id: 'EXPEDITION_START',
+    label: 'Expedition Start',
+    durationMs: 500,
+    keyframes: [{ atMs: 0 }, { atMs: 500 }],
+    setup: () => {
+      const t = useVehicleStore.getState().telemetry
+      useVehicleStore.getState().setConnections({ gps: 'FIX' })
+      useExpeditionStore.getState().startExpedition(t.latitude.value, t.longitude.value)
+    },
+  },
+  TRAIL_DRIVE: {
+    id: 'TRAIL_DRIVE',
+    label: 'Trail Drive',
+    durationMs: 20000,
+    releaseOverridesAtEnd: true,
+    setup: () => {
+      useVehicleStore.getState().setConnections({ gps: 'FIX' })
+    },
+    keyframes: [
+      { atMs: 0, values: { speedKph: 12, headingDeg: 40 } },
+      { atMs: 5000, values: { speedKph: 22, headingDeg: 90 } },
+      { atMs: 10000, values: { speedKph: 8, headingDeg: 140 } },
+      { atMs: 15000, values: { speedKph: 18, headingDeg: 200 } },
+      { atMs: 20000, values: { speedKph: 14, headingDeg: 250 } },
+    ],
+  },
+  STEEP_CLIMB: {
+    id: 'STEEP_CLIMB',
+    label: 'Steep Climb',
+    durationMs: 8000,
+    keyframes: [
+      { atMs: 0, values: { speedKph: 15, altitudeM: 500 }, onReach: () => useExpeditionStore.getState().setPitchOverride(4) },
+      { atMs: 2000, onReach: () => useExpeditionStore.getState().setPitchOverride(16) },
+      { atMs: 4000, values: { altitudeM: 560 }, onReach: () => useExpeditionStore.getState().setPitchOverride(26) },
+      { atMs: 8000, values: { altitudeM: 610 }, onReach: () => useExpeditionStore.getState().setPitchOverride(30) },
+    ],
+  },
+  SIDE_SLOPE: {
+    id: 'SIDE_SLOPE',
+    label: 'Side Slope',
+    durationMs: 8000,
+    keyframes: [
+      { atMs: 0, values: { speedKph: 10 }, onReach: () => useExpeditionStore.getState().setRollOverride(4) },
+      { atMs: 2500, onReach: () => useExpeditionStore.getState().setRollOverride(14) },
+      { atMs: 5000, onReach: () => useExpeditionStore.getState().setRollOverride(21) },
+      { atMs: 8000, onReach: () => useExpeditionStore.getState().setRollOverride(24) },
+    ],
+  },
+  WAYPOINT_APPROACH: {
+    id: 'WAYPOINT_APPROACH',
+    label: 'Waypoint Approach',
+    durationMs: 500,
+    keyframes: [{ atMs: 0 }, { atMs: 500 }],
+    setup: () => {
+      const t = useVehicleStore.getState().telemetry
+      useExpeditionStore.getState().markWaypoint(t.latitude.value + 0.004, t.longitude.value + 0.004, t.altitudeM.value, 'CAMP')
+    },
+  },
+  RETURN_TO_START: {
+    id: 'RETURN_TO_START',
+    label: 'Return To Start',
+    durationMs: 500,
+    keyframes: [{ atMs: 0 }, { atMs: 500 }],
+    setup: () => {
+      const t = useVehicleStore.getState().telemetry
+      useExpeditionStore.getState().startExpedition(t.latitude.value - 0.01, t.longitude.value - 0.01)
+    },
+  },
+  LOW_FUEL_OFFROAD: {
+    id: 'LOW_FUEL_OFFROAD',
+    label: 'Low Fuel Offroad',
+    durationMs: 6000,
+    keyframes: [
+      { atMs: 0, values: { fuelPercent: 22, speedKph: 20 } },
+      { atMs: 6000, values: { fuelPercent: 8 } },
+    ],
+  },
+  WINCH_OPERATION: {
+    id: 'WINCH_OPERATION',
+    label: 'Winch Operation',
+    durationMs: 8000,
+    keyframes: [{ atMs: 0, values: { speedKph: 0, rpm: 900 } }, { atMs: 8000 }],
+    setup: () => {
+      useExpeditionStore.getState().setWinch(true)
+    },
+  },
+  RALLY_RAID: {
+    id: 'RALLY_RAID',
+    label: 'Rally Raid',
+    durationMs: 10000,
+    releaseOverridesAtEnd: true,
+    keyframes: [
+      { atMs: 0, values: { speedKph: 40, rpm: 2800, boostBar: 0.3, headingDeg: 300 } },
+      { atMs: 4000, values: { speedKph: 95, rpm: 4400, boostBar: 0.75, headingDeg: 320 } },
+      { atMs: 7000, values: { speedKph: 70, rpm: 3600, boostBar: 0.55, headingDeg: 280 } },
+      { atMs: 10000, values: { speedKph: 88, rpm: 4000, boostBar: 0.68, headingDeg: 287 } },
+    ],
+  },
 }
 
 interface RunningScenario {
@@ -369,6 +525,8 @@ export function runScenario(id: ScenarioId) {
   const def = SCENARIOS[id]
   if (!def) return
   clearAllOverrides()
+  useExpeditionStore.getState().setPitchOverride(null)
+  useExpeditionStore.getState().setRollOverride(null)
   useVehicleStore.getState().setScenario(id)
   useVehicleStore.getState().setIgnition('ON')
   useVehicleStore.getState().setEngine('RUNNING')

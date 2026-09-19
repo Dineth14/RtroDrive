@@ -25,6 +25,7 @@ type OverridableChannel =
   | 'longitude'
   | 'satelliteCount'
   | 'gpsAccuracyM'
+  | 'altitudeM'
 
 type OverrideMap = Partial<Record<OverridableChannel, number>>
 
@@ -257,7 +258,11 @@ export function stepTelemetry(dtSeconds: number) {
     next.longitude = {...t.longitude, available:false}
     next.headingDeg = {...t.headingDeg, available:false}
   }
-  next.altitudeM = makeChannel(gpsAvailable ? t.altitudeM.value + noise(0.2) : t.altitudeM.value, 'GPS', gpsAvailable)
+  next.altitudeM = makeChannel(
+    overrides.altitudeM !== undefined ? overrides.altitudeM : gpsAvailable ? t.altitudeM.value + noise(0.2) : t.altitudeM.value,
+    'GPS',
+    gpsAvailable
+  )
 
   if (gpsAvailable && ignition !== 'OFF') {
     breadcrumbTimer += dtSeconds

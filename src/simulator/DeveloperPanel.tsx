@@ -1,8 +1,10 @@
 import { useVehicleStore } from '@/state/vehicleStore'
 import { useSettingsStore } from '@/state/settingsStore'
 import { useMediaStore } from '@/state/mediaStore'
+import { useExpeditionStore } from '@/state/expeditionStore'
 import type { IgnitionState, EngineState, GpsState, ConnectionState, NavInstructionKind } from '@/types/telemetry'
 import type { ScenarioId } from '@/types/scenario'
+import type { FourWheelDriveState } from '@/types/expedition'
 import { setOverride, clearAllOverrides } from './telemetryEngine'
 import { runScenario, clearScenarioOverrides } from './scenarios'
 import { triggerBootSequence } from './bootController'
@@ -36,6 +38,19 @@ const SCENARIOS: { id: ScenarioId; label: string }[] = [
   { id: 'MUSIC_PLAYBACK', label: 'Music Playback' },
   { id: 'MUSIC_WARNING', label: 'Music + Warning' },
   { id: 'NIGHT_DRIVE', label: 'Night Drive' },
+  { id: 'CLASSIC_CRUISE', label: 'Classic Cruise' },
+  { id: 'CITY_NAV', label: 'City Nav' },
+  { id: 'HIGHWAY_NAV', label: 'Highway Nav' },
+  { id: 'PHONE_NAV_LOSS', label: 'Phone Nav Loss' },
+  { id: 'EXPEDITION_START', label: 'Expedition Start' },
+  { id: 'TRAIL_DRIVE', label: 'Trail Drive' },
+  { id: 'STEEP_CLIMB', label: 'Steep Climb' },
+  { id: 'SIDE_SLOPE', label: 'Side Slope' },
+  { id: 'WAYPOINT_APPROACH', label: 'Waypoint Approach' },
+  { id: 'RETURN_TO_START', label: 'Return To Start' },
+  { id: 'LOW_FUEL_OFFROAD', label: 'Low Fuel Offroad' },
+  { id: 'WINCH_OPERATION', label: 'Winch Operation' },
+  { id: 'RALLY_RAID', label: 'Rally Raid' },
 ]
 
 const HARDWARE_KEYS = ['can', 'obdProtocol', 'gnss', 'sdCard', 'rtc', 'bluetooth', 'wifi', 'audio'] as const
@@ -76,6 +91,9 @@ export function DeveloperPanel() {
   const togglePlay = useMediaStore((s) => s.togglePlay)
   const mediaNext = useMediaStore((s) => s.next)
   const mediaPrev = useMediaStore((s) => s.previous)
+
+  const exp = useExpeditionStore()
+  const visual = getVisualProfile(vehicle)
 
   const setIgnitionState = (v: IgnitionState) => {
     setIgnition(v)
@@ -152,6 +170,12 @@ export function DeveloperPanel() {
           onClick={() => setActiveClusterScreen(activeClusterScreen === 'TEST' ? 'DASHBOARD' : 'TEST')}
         >
           Display Test
+        </button>
+        <button
+          className={`rd-dev-btn${activeClusterScreen === 'TERRAIN' ? ' active' : ''}`}
+          onClick={() => setActiveClusterScreen(activeClusterScreen === 'TERRAIN' ? 'DASHBOARD' : 'TERRAIN')}
+        >
+          Terrain Screen
         </button>
       </div>
 
@@ -244,6 +268,56 @@ export function DeveloperPanel() {
               {n.label}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="rd-dev-divider" />
+
+      <div>
+        <div className="rd-dev-section-title">Expedition / Off-Road{visual.supportsOffRoadMode ? '' : ' (non off-road vehicle)'}</div>
+        <div className="rd-dev-btn-row" style={{ marginBottom: 6 }}>
+          <button className={`rd-dev-btn${exp.expeditionActive ? ' active' : ''}`} onClick={() => exp.expeditionActive ? exp.endExpedition() : exp.startExpedition(telemetry.latitude.value, telemetry.longitude.value)}>
+            {exp.expeditionActive ? 'END EXPEDITION' : 'START EXPEDITION'}
+          </button>
+          <button className="rd-dev-btn" onClick={() => exp.markWaypoint(telemetry.latitude.value, telemetry.longitude.value, telemetry.altitudeM.value)}>
+            MARK WAYPOINT
+          </button>
+          <button className="rd-dev-btn" onClick={() => exp.clearWaypoints()}>
+            CLEAR WAYPOINTS ({exp.waypoints.length})
+          </button>
+        </div>
+        <div className="rd-dev-slider-row">
+          <div className="rd-dev-slider-label">
+            <span>Pitch</span>
+            <span className="rd-dev-slider-value">{exp.pitchDeg.toFixed(0)}°</span>
+          </div>
+          <input type="range" min={-35} max={35} step={1} value={exp.pitchDeg} onChange={(e) => exp.setPitchOverride(Number(e.target.value))} />
+        </div>
+        <div className="rd-dev-slider-row">
+          <div className="rd-dev-slider-label">
+            <span>Roll</span>
+            <span className="rd-dev-slider-value">{exp.rollDeg.toFixed(0)}°</span>
+          </div>
+          <input type="range" min={-30} max={30} step={1} value={exp.rollDeg} onChange={(e) => exp.setRollOverride(Number(e.target.value))} />
+        </div>
+        <div className="rd-dev-btn-row" style={{ margin: '4px 0' }}>
+          <button className="rd-dev-btn" onClick={() => { exp.setPitchOverride(null); exp.setRollOverride(null) }}>RELEASE PITCH/ROLL</button>
+          <button className="rd-dev-btn" onClick={() => exp.zeroInclinometer()}>INCLINOMETER ZERO</button>
+        </div>
+        {slider('Altitude', 'altitudeM', telemetry.altitudeM.value, -50, 3000, 10, ' m')}
+        <div className="rd-dev-btn-row" style={{ marginBottom: 6 }}>
+          {(['2H', '4H', '4L'] as FourWheelDriveState[]).map((v) => (
+            <button key={v} className={`rd-dev-btn${exp.fourWheelDrive === v ? ' active' : ''}`} onClick={() => exp.setFourWheelDrive(v)}>{v}</button>
+          ))}
+        </div>
+        <div className="rd-dev-btn-row" style={{ marginBottom: 6 }}>
+          <button className={`rd-dev-btn${exp.diffLock.center ? ' active' : ''}`} onClick={() => exp.toggleDiffLock('center')}>CENTER LOCK</button>
+          <button className={`rd-dev-btn${exp.diffLock.front ? ' active' : ''}`} onClick={() => exp.toggleDiffLock('front')}>FRONT LOCK</button>
+          <button className={`rd-dev-btn${exp.diffLock.rear ? ' active' : ''}`} onClick={() => exp.toggleDiffLock('rear')}>REAR LOCK</button>
+          <button className={`rd-dev-btn${exp.winchActive ? ' active' : ''}`} onClick={() => exp.setWinch(!exp.winchActive)}>WINCH</button>
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--cl-muted-text)' }}>
+          Transmission: {exp.transmissionTempC.toFixed(0)}°C &nbsp; Waypoints: {exp.waypoints.length} &nbsp; Trails saved: {exp.savedTrails.length}
         </div>
       </div>
 

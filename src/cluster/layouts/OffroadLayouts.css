@@ -1,0 +1,45 @@
+/* ---- Rally Raid 90 ---- */
+.rd-rally{position:absolute;inset:38px 34px 35px;display:flex;flex-direction:column;gap:14px}
+.rd-rally-head{display:flex;justify-content:space-between;font-size:11px;letter-spacing:3px;border-bottom:1px solid var(--cl-grid-line);padding-bottom:10px}
+.rd-rally-head b{color:var(--cl-amber)}
+.rd-rally-4wd{color:var(--cl-primary)}
+.rd-rally-main{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.rd-rally-speed{flex:1;display:flex;justify-content:center}
+.rd-rally-compass{display:flex;justify-content:center;padding-top:6px}
+.rd-rally-boost{border-block:1px solid var(--cl-grid-line);padding:10px}
+.rd-rally-nonboost{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:2px;color:var(--cl-muted-text)}
+.rd-rally-nonboost strong{font-size:26px;color:var(--cl-primary-bright)}
+.rd-rally-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.rd-rally-grid div{display:flex;flex-direction:column;gap:4px}
+.rd-rally-grid label{font-size:9px;letter-spacing:1.5px;color:var(--cl-muted-text)}
+.rd-rally-grid strong{font-size:19px;color:var(--cl-primary-bright)}
+.rd-rally-footer{display:flex;align-items:center;gap:30px;margin-top:auto}
+.rd-rally-footer>div:last-child{flex:1}
+
+/* ---- Utility 80 ---- */
+.rd-utility80{position:absolute;inset:38px 34px 35px;display:flex;flex-direction:column;gap:16px;font-family:"JetBrains Mono","Consolas",monospace}
+.rd-utility80-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:3px;border-bottom:2px solid var(--cl-grid-line);padding-bottom:10px}
+.rd-utility80-head b{color:var(--cl-primary)}
+.rd-utility80-main{flex:1;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.rd-utility80-block{border:1px solid var(--cl-grid-line);padding:10px 18px;display:flex;align-items:center;justify-content:center}
+.rd-utility80-bars{display:flex;gap:18px;border:1px solid var(--cl-grid-line);padding:10px 16px}
+.rd-utility80-status{display:flex;justify-content:space-between;font-size:11px;letter-spacing:2px;color:var(--cl-primary);border-block:1px solid var(--cl-grid-line);padding:8px 4px}
+.rd-utility80-footer{display:flex;align-items:center;gap:30px;margin-top:auto}
+.rd-utility80-footer>div:last-child{flex:1}
+
+/* ---- Touring 95 ---- */
+.rd-touring95{position:absolute;inset:38px 34px 35px;display:flex;flex-direction:column;gap:14px}
+.rd-touring95-head{display:flex;justify-content:space-between;font-size:11px;letter-spacing:3px;border-bottom:1px solid var(--cl-grid-line);padding-bottom:10px}
+.rd-touring95-main{flex:1;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.rd-touring95-speed{display:flex;flex-direction:column;align-items:center;gap:6px}
+.rd-touring95-compass{display:flex;justify-content:center}
+.rd-touring95-range{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:11px;letter-spacing:2px;color:var(--cl-muted-text)}
+.rd-touring95-range strong{font-size:30px;color:var(--cl-primary-bright)}
+.rd-touring95-boost{border-block:1px solid var(--cl-grid-line);padding:8px 10px}
+.rd-touring95-aux{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rd-touring95-aux>div{padding:8px 10px;border-right:1px solid var(--cl-grid-line)}
+.rd-touring95-aux label{font-size:10px;letter-spacing:2px;color:var(--cl-muted-text)}
+.rd-touring95-aux strong{display:block;font-size:22px;font-weight:400;margin-top:4px}
+.rd-touring95-aux small{font-size:11px;margin-left:4px;color:var(--cl-amber)}
+.rd-touring95-footer{display:flex;align-items:center;gap:30px;margin-top:auto}
+.rd-touring95-footer>div:last-child{flex:1}

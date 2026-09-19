@@ -1,0 +1,52 @@
+.rd-exp-hero {
+  background: #101a12;
+  border: 1px solid #2c3a26;
+  padding: 16px;
+  margin: 0 16px 18px;
+  color: #cdd8bd;
+}
+.rd-exp-hero svg {
+  width: 100%;
+  height: auto;
+  color: #8fa27e;
+}
+.rd-exp-hero-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #2c3a26;
+}
+.rd-exp-hero-row label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #6c7a5c;
+}
+.rd-exp-hero-row strong {
+  font-size: 14px;
+  color: #e4e8d6;
+}
+.rd-exp-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 18px;
+}
+.rd-exp-actions button {
+  flex: 1;
+  background: #16201a;
+  border: 1px solid #2c3a26;
+  color: #a9b899;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 10px 4px;
+  cursor: pointer;
+}
+.rd-exp-actions button.active {
+  color: #8fcb83;
+  border-color: #8fcb83;
+}
+.rd-exp-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

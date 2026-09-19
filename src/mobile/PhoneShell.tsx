@@ -19,6 +19,7 @@ import { WarningSettingsScreen } from './WarningSettingsScreen'
 import { ConnectivityScreen } from './ConnectivityScreen'
 import { AboutScreen } from './AboutScreen'
 import { MediaSettingsScreen } from './MediaSettingsScreen'
+import { ExpeditionScreen } from './ExpeditionScreen'
 import './PhoneShell.css'
 import './vehicleThemes.css'
 
@@ -39,6 +40,7 @@ export type PhoneScreenId =
   | 'SETTINGS_CONNECTIVITY'
   | 'SETTINGS_MEDIA'
   | 'SETTINGS_ABOUT'
+  | 'EXPEDITION'
 
 type Tab = 'HOME' | 'LIVE' | 'GPS' | 'DIAG' | 'TRIPS' | 'MEDIA' | 'SETTINGS'
 
@@ -69,11 +71,13 @@ const SCREEN_TITLES: Record<PhoneScreenId, string> = {
   SETTINGS_CONNECTIVITY: 'CONNECTIVITY',
   SETTINGS_MEDIA: 'MEDIA',
   SETTINGS_ABOUT: 'ABOUT',
+  EXPEDITION: 'EXPEDITION',
 }
 
 const BACK_TARGET: Partial<Record<PhoneScreenId, PhoneScreenId>> = {
   DIAG_DETAIL: 'DIAG_LIST',
   TRIP_DETAIL: 'TRIPS_LIST',
+  EXPEDITION: 'HOME',
   SETTINGS_VEHICLE: 'SETTINGS_HOME',
   SETTINGS_DISPLAY: 'SETTINGS_HOME',
   SETTINGS_SOUND: 'SETTINGS_HOME',
@@ -134,7 +138,8 @@ export function PhoneShell() {
             <div className="rd-m-driving-warning">VEHICLE IN MOTION — CHANGES MAY BE DISTRACTING. PROCEED WITH CAUTION.</div>
           )}
 
-          {screen === 'HOME' && <HomeScreen onOpenDtc={openDtc} onViewLocation={() => goTab('GPS')} />}
+          {screen === 'HOME' && <HomeScreen onOpenDtc={openDtc} onViewLocation={() => goTab('GPS')} onOpenExpedition={() => setScreen('EXPEDITION')} />}
+          {screen === 'EXPEDITION' && <ExpeditionScreen />}
           {screen === 'LIVE' && <Suspense fallback={<div className="rd-m-empty">READING INSTRUMENTS…</div>}><LiveDataScreen /></Suspense>}
           {screen === 'MEDIA' && <MediaPlayerScreen/>}
           {screen === 'GPS' && <GpsMapScreen />}

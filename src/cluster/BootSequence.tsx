@@ -7,6 +7,9 @@ import { ClassicDashboard } from './layouts/ClassicLayouts'
 import { JdmGt93 } from './layouts/JdmGt93'
 import { JdmDigital86 } from './layouts/JdmDigital86'
 import { EuroDigital89 } from './layouts/EuroDigital89'
+import { RallyRaid90 } from './layouts/RallyRaid90'
+import { Utility80 } from './layouts/Utility80'
+import { Touring95 } from './layouts/Touring95'
 export function BootSequence() {
   const phase = useVehicleStore(s=>s.bootPhase)
   const vehicle = useSettingsStore(s=>s.vehicleProfile)
@@ -22,7 +25,10 @@ export function BootSequence() {
   if(phase==='BLACK') return <div style={{position:'absolute',inset:0,background:'#000'}}/>
   if((phase==='RPM_SWEEP'||phase==='LAMP_TEST')&&layout==='JDM_DIGITAL_86')return <JdmDigital86 testValue={phase==='LAMP_TEST'?1:sweep}/>
   if((phase==='RPM_SWEEP'||phase==='LAMP_TEST')&&layout==='EURO_DIGITAL_89')return <EuroDigital89 testValue={phase==='LAMP_TEST'?1:sweep}/>
-  if(phase==='RPM_SWEEP' || phase==='LAMP_TEST') return classic ? <ClassicDashboard testValue={phase==='LAMP_TEST'?0:sweep} variant={layout==='MINI_HERITAGE'?'mini':layout==='VINTAGE_TOURER'?'tourer':layout==='GRAND_TOURING_62'?'touring':'roadster'}/> : <JdmGt93 testValue={phase==='LAMP_TEST'?1:sweep}/>
+  if((phase==='RPM_SWEEP'||phase==='LAMP_TEST')&&layout==='RALLY_RAID_90')return <RallyRaid90 testValue={phase==='LAMP_TEST'?1:sweep}/>
+  if((phase==='RPM_SWEEP'||phase==='LAMP_TEST')&&layout==='UTILITY_80')return <Utility80 testValue={phase==='LAMP_TEST'?1:sweep}/>
+  if((phase==='RPM_SWEEP'||phase==='LAMP_TEST')&&layout==='TOURING_95')return <Touring95 testValue={phase==='LAMP_TEST'?1:sweep}/>
+  if(phase==='RPM_SWEEP' || phase==='LAMP_TEST') return classic ? <ClassicDashboard testValue={phase==='LAMP_TEST'?0:sweep} variant={layout==='MINI_HERITAGE'?'mini':layout==='VINTAGE_TOURER'||layout==='EXPEDITION_60'?'tourer':layout==='GRAND_TOURING_62'?'touring':'roadster'}/> : <JdmGt93 testValue={phase==='LAMP_TEST'?1:sweep}/>
   const progress=phase==='SEGMENT_TEST'?.18:phase==='STATUS_INIT'?.7:1
   return <div className={`rd-vehicle-boot ${classic?'rd-boot-classic':''}`}>
     <h1>RETRODRIVE</h1><small>{classic?'PRECISION MOTORING INSTRUMENTS':'VEHICLE INTELLIGENCE / SERIES 04'}</small>

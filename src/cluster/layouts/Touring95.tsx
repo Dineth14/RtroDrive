@@ -9,7 +9,7 @@ import type { AuxSlotValue } from '@/types/vehicle'
 import './OffroadLayouts.css'
 
 export function Touring95({ testValue }: { testValue?: number }) {
-  const { telemetry: t, connections, display, vehicle, isPlaying, track } = useDashboardData()
+  const { telemetry: t, connections, display, vehicle, isPlaying, track, speedSourceActive } = useDashboardData()
   const aux = (['COOLANT', 'BATTERY', 'OIL_TEMP'] as AuxSlotValue[]).map((key) => resolveAuxSlot(key, t, vehicle))
   const rangeKm = t.fuelPercent.value * 6.2
 
@@ -24,7 +24,7 @@ export function Touring95({ testValue }: { testValue?: number }) {
 
         <div className="rd-touring95-main">
           <div className="rd-touring95-speed">
-            <DigitalSpeed speedKph={testValue === undefined ? t.speedKph.value : 888} unit={vehicle.speedUnit === 'MPH' ? 'mph' : 'km/h'} heightPx={96} showSource source={vehicle.speedUnit === 'MPH' ? undefined : undefined} />
+            <DigitalSpeed speedKph={testValue === undefined ? t.speedKph.value : 888} unit={vehicle.speedUnit === 'MPH' ? 'mph' : 'km/h'} heightPx={96} showSource source={speedSourceActive} />
             <GpsMiniIndicator telemetry={t} gpsFix={connections.gps === 'FIX'} />
           </div>
           <div className="rd-touring95-compass">

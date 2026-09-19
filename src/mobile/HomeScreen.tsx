@@ -1,4 +1,7 @@
 import { useVehicleStore } from '@/state/vehicleStore'
+import { useSettingsStore } from '@/state/settingsStore'
+import { useExpeditionStore } from '@/state/expeditionStore'
+import { getVisualProfile } from '@/vehicleProfiles/profiles'
 import './mobile.css'
 import { VehicleHome } from './VehicleHome'
 
@@ -18,7 +21,7 @@ function timeAgo(ts: number) {
   return h > 0 ? `${h}h ${m}m ago` : `${m}m ago`
 }
 
-export function HomeScreen({ onOpenDtc, onViewLocation }: { onOpenDtc: (code: string) => void; onViewLocation?: () => void }) {
+export function HomeScreen({ onOpenDtc, onViewLocation, onOpenExpedition }: { onOpenDtc: (code: string) => void; onViewLocation?: () => void; onOpenExpedition?: () => void }) {
   const ignition = useVehicleStore((s) => s.ignition)
   const telemetry = useVehicleStore((s) => s.telemetry)
   const health = useVehicleStore((s) => s.health)
@@ -26,12 +29,25 @@ export function HomeScreen({ onOpenDtc, onViewLocation }: { onOpenDtc: (code: st
   const trips = useVehicleStore((s) => s.trips)
   const parkedLocation = useVehicleStore((s) => s.parkedLocation)
   const lastTrip = trips[0]
+  const vehicle = useSettingsStore((s) => s.vehicleProfile)
+  const visual = getVisualProfile(vehicle)
+  const exp = useExpeditionStore()
 
   const overallGood = health.every((h) => h.status === 'NORMAL')
 
   return (
     <div>
       <VehicleHome/>
+
+      {visual.supportsOffRoadMode && (
+        <div className="rd-m-card clickable" onClick={onOpenExpedition}>
+          <div className="rd-m-card-title">EXPEDITION MODE</div>
+          <div className="rd-m-row">
+            <span className="rd-m-row-label">{exp.expeditionActive ? 'TRAIL RECORDING ACTIVE' : 'OPEN EXPEDITION COMPUTER'}</span>
+            <span style={{ color: '#8fcb83', fontSize: 12 }}>{exp.waypoints.length} WP</span>
+          </div>
+        </div>
+      )}
 
       {ignition === 'OFF' && parkedLocation && (
         <div className="rd-m-card">

@@ -64,7 +64,7 @@ export function getVisualProfile(vehicle: VehicleProfile): VehicleVisualProfile 
   return VISUAL_PROFILES[vehicleVisualIds[vehicle.id] ?? 'GENERIC_1990S_GT']
 }
 export function isClassicLayout(layout: ClusterLayoutId) {
-  return ['CLASSIC_ROADSTER_60', 'GRAND_TOURING_62', 'MINI_HERITAGE', 'VINTAGE_TOURER'].includes(layout)
+  return ['CLASSIC_ROADSTER_60', 'GRAND_TOURING_62', 'MINI_HERITAGE', 'VINTAGE_TOURER', 'EXPEDITION_60'].includes(layout)
 }
 export function isOffRoadLayout(layout: ClusterLayoutId) {
   return ['EXPEDITION_60', 'UTILITY_80', 'RALLY_RAID_90', 'TOURING_95'].includes(layout)

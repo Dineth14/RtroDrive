@@ -28,3 +28,4 @@ export const ClassicRoadster60 = () => <ClassicDashboard/>
 export const GrandTouring62 = () => <ClassicDashboard variant="touring"/>
 export const MiniHeritage = () => <ClassicDashboard variant="mini"/>
 export const VintageTourer = () => <ClassicDashboard variant="tourer"/>
+export const Expedition60 = () => <ClassicDashboard variant="tourer"/>
