@@ -19,3 +19,7 @@ __pycache__/
 *.log
 .DS_Store
 hardware/datasheets/research-tmp/
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/.metadata
+apps/mobile/test/widget_test.dart
