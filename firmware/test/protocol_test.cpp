@@ -2,6 +2,7 @@
 #include "isotp.h"
 #include "mini_mems2j_protocol.h"
 #include "mini_mems2j_profile.h"
+#include "vehicle_link.h"
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -69,5 +70,21 @@ int main() {
   mini.begin(0,true,false); mini.tick(25); mini.tick(50); assert(mini.tick(1050) == MiniAction::Stop);
   mini.begin(0,true,false); assert(mini.tick(100) == MiniAction::Stop);
   assert(!mini_profile().live_data_enabled && mini_verified_pid_count() == 0 && mini_verified_fault_count() == 0);
+  VehicleLinkManager link;
+  auto action = link.begin(0); assert(action.kind == LinkActionKind::QualifyBus && action.config.bitrate == 500000 && !action.config.extended);
+  action = link.qualified(10,true); assert(action.kind == LinkActionKind::ReadSupported && action.pid == 0);
+  link.response(0x7E8,false,{0x41,0,0,0x18,0,1},20);
+  assert(link.tick(30).kind == LinkActionKind::None);
+  action = link.tick(110); assert(action.kind == LinkActionKind::ReadSupported && action.pid == 0x20);
+  link.response(0x7E9,false,{0x41,0x20,0,0,0,0},120); assert(link.state() == LinkState::Discovering);
+  link.response(0x7E8,false,{0x41,0x20,0,0,0,0},130);
+  action = link.tick(210); assert(action.kind == LinkActionKind::ReadVin);
+  link.tick(1210); assert(link.state() == LinkState::Ready && link.vin().empty());
+  assert(!link.confirm_profile("mini_mems2j",true) && !link.confirm_profile("generic_can",false) && link.confirm_profile("generic_can",true));
+  Fingerprint cached; cached.present=true;cached.config={250000,true};cached.responder=0x18DAF110;
+  action=link.begin(0,cached);assert(action.config.extended && action.config.bitrate==250000);
+  link.qualified(0,true);action=link.tick(1000);assert(action.kind==LinkActionKind::QualifyBus && !action.config.extended);
+  for(int i=0;i<4;i++) link.qualified(1100+i*100,false);
+  assert(link.state()==LinkState::Failed);
   std::cout << "PASS OBD conversions/capabilities/polling, addressing, ISO-TP, VIN/DTC, gated Mini init/echo/timeouts\n";
 }
