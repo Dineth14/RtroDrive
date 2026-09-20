@@ -1,0 +1,15 @@
+# RetroDrive BLE1.0 draft
+
+Status: specified, not implemented or hardware verified. Canonical machine definition: [ble-v1.json](../../shared/protocol/ble-v1.json). [Architecture/security](../architecture/mobile-and-ble.md).
+
+Little-endian logical envelope: major:u8 at0, flags:u8 at1, messageId:u16 at2, payloadLength:u16 at4, sequence:u16 at6, sessionId:u32 at8, uptimeMs:u32 at12, payload at16, CRC16 at16+payloadLength. Reserved flags must be zero. Payload is at most4096 bytes. CRC-16/CCITT-FALSE covers header+payload, polynomial0x1021, initial0xFFFF, no reflection/xor-out; ASCII123456789 gives0x29B1, wire bytesB1 29. CRC detects reassembly/bridge corruption; bonding/encryption provide authentication independently.
+
+Every characteristic value carries fragment tag0xF1:u8, transferId:u8, offset:u16, totalLength:u16, then chunk bytes. At ATTMTU23 the20-byte value allows14-byte chunks. Bound logical length4114, two active transfers per peer and2s inactivity; reject overlap conflicts, invalid ranges and old-session envelopes. Clear transfers on reconnect. Transfer IDs may not be reused while active; session state is tied to the authenticated connection. Sequencing uses16-bit half-range ordering; a reset gets a new nonzero session ID.
+
+Fast telemetry message0x0101 contains count:u8, reserved0:u8, then8-byte entries: channelId:u8, quality:u8, ageMs:u16, valueRaw:i32. Quality bit0 is validity; bits1–3 encode source, upper bits reserved. Scale/unit/range are in the manifest. Unsupported channels are omitted; invalid channels usevalid0/raw0 and become canonicalnull. Valid measured zero remains valid. Receiver age adds monotonic elapsed time since receipt; saturate age at65535ms. Snapshot applies to the negotiated subscription and absent expected fields are unavailable.
+
+Example bandwidth:6 entries produce50-byte payload +18-byte envelope =68bytes; at minimumMTU this takes5 fragments totaling98 characteristic-value bytes per sample, or980bytes/s at10Hz before ATT/link overhead.32 entries produce276logical bytes and20 fragments,3960value bytes/s at10Hz. These are calculations, not measured link throughput. Limit selected channels/rates, drop superseded telemetry and prioritize warnings/control. Device ECU polling has a separate bus budget.
+
+The manifest specifies hello, vehicle/profile, subscription, diagnostics, navigation state/geometry/nearby roads, trip chunks, settings, media and OTA-status layouts. Image activation is reserved until signed OTA is implemented. No arbitrary ECU command tunnel or Service04 exists. Variable arrays/text require declared maximum counts and byte lengths. Reject invalid enums/UTF8/lengths before allocation. Geometry needs a complete revision before activation; incomplete revisions never replace active navigation.
+
+Golden vectors and codec/fragment tests remain required before a BLE implementation is claimed. Device Information may use the standard service; RetroDrive UUIDs in the manifest are project-defined. Pairing requires encrypted authenticated bonding plus physical initial-enrollment confirmation. Do not advertise VIN/location.

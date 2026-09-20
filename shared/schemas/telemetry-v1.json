@@ -1,0 +1,1814 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://retrodrive.local/schemas/telemetry-v1.json",
+  "title": "RetroDrive telemetry snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "type",
+    "sessionId",
+    "sequence",
+    "timestampMs",
+    "connectionState",
+    "vehicleProfile",
+    "ignition",
+    "engineRunning",
+    "channels"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "type": {
+      "const": "telemetry"
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "timestampMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "connectionState": {
+      "enum": [
+        "disconnected",
+        "connecting",
+        "connected",
+        "fault"
+      ]
+    },
+    "vehicleProfile": {
+      "type": "string",
+      "pattern": "^[a-z0-9_-]{1,64}$"
+    },
+    "ignition": {
+      "enum": [
+        "unknown",
+        "off",
+        "acc",
+        "on",
+        "start"
+      ]
+    },
+    "engineRunning": {
+      "type": "boolean"
+    },
+    "channels": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 64,
+      "properties": {
+        "rpm": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 20000
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "rpm"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "speedKph": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 500
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "km/h"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "coolantC": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -100,
+              "maximum": 300
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "degC"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "intakeAirC": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -100,
+              "maximum": 300
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "degC"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "throttlePct": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "%"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "engineLoadPct": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "%"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "mapKpa": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1000
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "kPa"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "mafGps": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 2000
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "g/s"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "shortFuelTrimPct": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -100,
+              "maximum": 100
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "%"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "longFuelTrimPct": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -100,
+              "maximum": 100
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "%"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "lambda": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 10
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "ratio"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "batteryVoltage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "V"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "fuelLevelPct": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "%"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "oilTemperatureC": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -100,
+              "maximum": 300
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "degC"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "oilPressureKpa": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 2000
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "kPa"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "boostKpa": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -200,
+              "maximum": 1000
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "kPa"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "latitude": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -90,
+              "maximum": 90
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "deg"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "longitude": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -180,
+              "maximum": 180
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "deg"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "altitudeM": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -1000,
+              "maximum": 30000
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "m"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "gpsSpeedKph": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 500
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "km/h"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "headingDeg": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 359.99
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "deg"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "satellites": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 255
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "count"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "pitchDeg": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -180,
+              "maximum": 180
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "deg"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "rollDeg": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -180,
+              "maximum": 180
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "deg"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "barometricPressureKpa": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 200
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "kPa"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "hdop": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "valid",
+            "source",
+            "ageMs",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 655.35
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "obd",
+                "gnss",
+                "imu",
+                "external",
+                "derived",
+                "simulated"
+              ]
+            },
+            "ageMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "const": "ratio"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "valid": {
+                    "const": false
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "value": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

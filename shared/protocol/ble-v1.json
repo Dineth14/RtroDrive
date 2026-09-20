@@ -1,0 +1,1130 @@
+{
+  "protocol": "RetroDrive BLE",
+  "status": "draft-not-hardware-verified",
+  "version": {
+    "major": 1,
+    "minor": 0
+  },
+  "byteOrder": "little-endian",
+  "gatt": {
+    "serviceUuid": "8a59a001-cdf1-4c6d-b96b-2d82d1e4a001",
+    "controlWriteUuid": "8a59a002-cdf1-4c6d-b96b-2d82d1e4a001",
+    "eventIndicateUuid": "8a59a003-cdf1-4c6d-b96b-2d82d1e4a001",
+    "telemetryNotifyUuid": "8a59a004-cdf1-4c6d-b96b-2d82d1e4a001",
+    "bulkWriteNotifyUuid": "8a59a005-cdf1-4c6d-b96b-2d82d1e4a001",
+    "uuidAuthority": "project-defined vendor UUIDs"
+  },
+  "envelope": {
+    "headerBytes": 16,
+    "trailerBytes": 2,
+    "maxPayloadBytes": 4096,
+    "fields": [
+      {
+        "name": "major",
+        "offset": 0,
+        "type": "u8",
+        "constant": 1
+      },
+      {
+        "name": "flags",
+        "offset": 1,
+        "type": "u8",
+        "bits": {
+          "0": "ack_requested",
+          "1": "response",
+          "2": "error"
+        },
+        "reservedMask": 248
+      },
+      {
+        "name": "messageId",
+        "offset": 2,
+        "type": "u16"
+      },
+      {
+        "name": "payloadLength",
+        "offset": 4,
+        "type": "u16"
+      },
+      {
+        "name": "sequence",
+        "offset": 6,
+        "type": "u16"
+      },
+      {
+        "name": "sessionId",
+        "offset": 8,
+        "type": "u32"
+      },
+      {
+        "name": "uptimeMs",
+        "offset": 12,
+        "type": "u32"
+      },
+      {
+        "name": "payload",
+        "offset": 16,
+        "type": "bytes",
+        "lengthFrom": "payloadLength"
+      },
+      {
+        "name": "crc16",
+        "offset": "16 + payloadLength",
+        "type": "u16"
+      }
+    ]
+  },
+  "crc": {
+    "name": "CRC-16/CCITT-FALSE",
+    "polynomial": 4129,
+    "initial": 65535,
+    "reflectInput": false,
+    "reflectOutput": false,
+    "xorOut": 0,
+    "coverage": "header + payload; excludes crc16",
+    "checkAscii": "123456789",
+    "checkHex": "29b1",
+    "wireCheckHex": "b129",
+    "purpose": "end-to-end application reassembly corruption detection; not authentication"
+  },
+  "fragment": {
+    "alwaysPresent": true,
+    "headerBytes": 6,
+    "minimumAttMtu": 23,
+    "minimumValueCapacity": 20,
+    "maxActiveTransfersPerPeer": 2,
+    "inactivityTimeoutMs": 2000,
+    "maxLogicalBytes": 4114,
+    "fields": [
+      {
+        "name": "tag",
+        "offset": 0,
+        "type": "u8",
+        "constant": 241
+      },
+      {
+        "name": "transferId",
+        "offset": 1,
+        "type": "u8"
+      },
+      {
+        "name": "offset",
+        "offset": 2,
+        "type": "u16"
+      },
+      {
+        "name": "totalLength",
+        "offset": 4,
+        "type": "u16"
+      },
+      {
+        "name": "chunk",
+        "offset": 6,
+        "type": "bytes",
+        "length": "characteristic value length - 6"
+      }
+    ]
+  },
+  "sourceIds": {
+    "0": "unknown",
+    "1": "obd",
+    "2": "gnss",
+    "3": "imu",
+    "4": "external",
+    "5": "derived",
+    "6": "simulated"
+  },
+  "fastTelemetry": {
+    "messageId": 257,
+    "maximumEntries": 32,
+    "prefixBytes": 2,
+    "entryBytes": 8,
+    "prefix": [
+      {
+        "name": "count",
+        "offset": 0,
+        "type": "u8"
+      },
+      {
+        "name": "reserved",
+        "offset": 1,
+        "type": "u8",
+        "constant": 0
+      }
+    ],
+    "entry": [
+      {
+        "name": "channelId",
+        "offset": 0,
+        "type": "u8"
+      },
+      {
+        "name": "quality",
+        "offset": 1,
+        "type": "u8",
+        "bits": {
+          "0": "valid",
+          "1": "source bit 0",
+          "2": "source bit 1",
+          "3": "source bit 2"
+        },
+        "reservedMask": 240
+      },
+      {
+        "name": "ageMs",
+        "offset": 2,
+        "type": "u16",
+        "saturatesAt": 65535
+      },
+      {
+        "name": "valueRaw",
+        "offset": 4,
+        "type": "i32",
+        "invalidEncoding": 0
+      }
+    ],
+    "channels": [
+      {
+        "id": 1,
+        "name": "rpm",
+        "unit": "rpm",
+        "scale": 1,
+        "min": 0,
+        "max": 20000
+      },
+      {
+        "id": 2,
+        "name": "speedKph",
+        "unit": "km/h",
+        "scale": 0.01,
+        "min": 0,
+        "max": 500
+      },
+      {
+        "id": 3,
+        "name": "coolantC",
+        "unit": "degC",
+        "scale": 0.01,
+        "min": -100,
+        "max": 300
+      },
+      {
+        "id": 4,
+        "name": "intakeAirC",
+        "unit": "degC",
+        "scale": 0.01,
+        "min": -100,
+        "max": 300
+      },
+      {
+        "id": 5,
+        "name": "throttlePct",
+        "unit": "%",
+        "scale": 0.01,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "id": 6,
+        "name": "engineLoadPct",
+        "unit": "%",
+        "scale": 0.01,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "id": 7,
+        "name": "mapKpa",
+        "unit": "kPa",
+        "scale": 0.01,
+        "min": 0,
+        "max": 1000
+      },
+      {
+        "id": 8,
+        "name": "mafGps",
+        "unit": "g/s",
+        "scale": 0.01,
+        "min": 0,
+        "max": 2000
+      },
+      {
+        "id": 9,
+        "name": "shortFuelTrimPct",
+        "unit": "%",
+        "scale": 0.01,
+        "min": -100,
+        "max": 100
+      },
+      {
+        "id": 10,
+        "name": "longFuelTrimPct",
+        "unit": "%",
+        "scale": 0.01,
+        "min": -100,
+        "max": 100
+      },
+      {
+        "id": 11,
+        "name": "lambda",
+        "unit": "ratio",
+        "scale": 0.0001,
+        "min": 0,
+        "max": 10
+      },
+      {
+        "id": 12,
+        "name": "batteryVoltage",
+        "unit": "V",
+        "scale": 0.001,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "id": 13,
+        "name": "fuelLevelPct",
+        "unit": "%",
+        "scale": 0.01,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "id": 14,
+        "name": "oilTemperatureC",
+        "unit": "degC",
+        "scale": 0.01,
+        "min": -100,
+        "max": 300
+      },
+      {
+        "id": 15,
+        "name": "oilPressureKpa",
+        "unit": "kPa",
+        "scale": 0.01,
+        "min": 0,
+        "max": 2000
+      },
+      {
+        "id": 16,
+        "name": "boostKpa",
+        "unit": "kPa",
+        "scale": 0.01,
+        "min": -200,
+        "max": 1000
+      },
+      {
+        "id": 17,
+        "name": "latitude",
+        "unit": "deg",
+        "scale": 1e-7,
+        "min": -90,
+        "max": 90
+      },
+      {
+        "id": 18,
+        "name": "longitude",
+        "unit": "deg",
+        "scale": 1e-7,
+        "min": -180,
+        "max": 180
+      },
+      {
+        "id": 19,
+        "name": "altitudeM",
+        "unit": "m",
+        "scale": 0.01,
+        "min": -1000,
+        "max": 30000
+      },
+      {
+        "id": 20,
+        "name": "gpsSpeedKph",
+        "unit": "km/h",
+        "scale": 0.01,
+        "min": 0,
+        "max": 500
+      },
+      {
+        "id": 21,
+        "name": "headingDeg",
+        "unit": "deg",
+        "scale": 0.01,
+        "min": 0,
+        "max": 359.99
+      },
+      {
+        "id": 22,
+        "name": "satellites",
+        "unit": "count",
+        "scale": 1,
+        "min": 0,
+        "max": 255
+      },
+      {
+        "id": 23,
+        "name": "pitchDeg",
+        "unit": "deg",
+        "scale": 0.01,
+        "min": -180,
+        "max": 180
+      },
+      {
+        "id": 24,
+        "name": "rollDeg",
+        "unit": "deg",
+        "scale": 0.01,
+        "min": -180,
+        "max": 180
+      },
+      {
+        "id": 25,
+        "name": "barometricPressureKpa",
+        "unit": "kPa",
+        "scale": 0.01,
+        "min": 0,
+        "max": 200
+      },
+      {
+        "id": 26,
+        "name": "hdop",
+        "unit": "ratio",
+        "scale": 0.01,
+        "min": 0,
+        "max": 655.35
+      }
+    ],
+    "semantics": "snapshot for configured subscription; unsupported channels absent; invalid known channels carry valid=0 and raw=0; canonical value is null when invalid"
+  },
+  "payloadTypes": {
+    "u8": "unsigned 8-bit",
+    "u16": "unsigned 16-bit",
+    "u32": "unsigned 32-bit",
+    "i16": "signed 16-bit",
+    "i32": "signed 32-bit",
+    "text8": "u8 byte length then that many valid UTF-8 bytes, maximum 96",
+    "bytes16": "u16 byte length then bytes, limited by maxPayloadBytes",
+    "point": "i32 latitudeE7 + i32 longitudeE7"
+  },
+  "messages": [
+    {
+      "id": 1,
+      "name": "HELLO",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "session": "zero",
+      "fields": [
+        [
+          "minimumMajor",
+          "u8"
+        ],
+        [
+          "maximumMajor",
+          "u8"
+        ],
+        [
+          "minor",
+          "u8"
+        ],
+        [
+          "reservedZero",
+          "u8"
+        ],
+        [
+          "maxPayload",
+          "u16"
+        ],
+        [
+          "valueCapacity",
+          "u16"
+        ],
+        [
+          "featureMask",
+          "u32"
+        ],
+        [
+          "clientNonce",
+          "u32"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "HELLO_ACK",
+      "direction": "device_to_phone",
+      "delivery": "event_indication",
+      "fields": [
+        [
+          "status",
+          "u8"
+        ],
+        [
+          "selectedMajor",
+          "u8"
+        ],
+        [
+          "selectedMinor",
+          "u8"
+        ],
+        [
+          "reservedZero",
+          "u8"
+        ],
+        [
+          "maxPayload",
+          "u16"
+        ],
+        [
+          "valueCapacity",
+          "u16"
+        ],
+        [
+          "featureMask",
+          "u32"
+        ],
+        [
+          "clientNonceEcho",
+          "u32"
+        ]
+      ]
+    },
+    {
+      "id": 16,
+      "name": "VEHICLE_STATUS",
+      "direction": "device_to_phone",
+      "delivery": "event_indication",
+      "fields": [
+        [
+          "connectionState",
+          "u8"
+        ],
+        [
+          "ignition",
+          "u8"
+        ],
+        [
+          "engineRunning",
+          "u8"
+        ],
+        [
+          "verification",
+          "u8"
+        ],
+        [
+          "physicalInterface",
+          "u8"
+        ],
+        [
+          "reservedZero",
+          "u8"
+        ],
+        [
+          "profileId",
+          "text8"
+        ],
+        [
+          "protocolId",
+          "text8"
+        ]
+      ]
+    },
+    {
+      "id": 17,
+      "name": "PROFILE_SELECT",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "profileId",
+          "text8"
+        ]
+      ],
+      "policy": "requires deliberate user confirmation; validates detected interface/capabilities; never drives undocumented pins"
+    },
+    {
+      "id": 257,
+      "name": "FAST_TELEMETRY",
+      "direction": "device_to_phone",
+      "delivery": "telemetry_notification",
+      "layout": "fastTelemetry"
+    },
+    {
+      "id": 258,
+      "name": "SUBSCRIBE",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "periodMs",
+          "u16"
+        ],
+        [
+          "count",
+          "u8"
+        ],
+        [
+          "channelIds",
+          "u8[count]"
+        ]
+      ],
+      "limits": {
+        "minimumPeriodMs": 100,
+        "maximumPeriodMs": 5000,
+        "maximumCount": 32
+      }
+    },
+    {
+      "id": 513,
+      "name": "WARNING_EVENT",
+      "direction": "device_to_phone",
+      "delivery": "event_indication",
+      "fields": [
+        [
+          "eventId",
+          "u32"
+        ],
+        [
+          "severity",
+          "u8"
+        ],
+        [
+          "active",
+          "u8"
+        ],
+        [
+          "acknowledged",
+          "u8"
+        ],
+        [
+          "reservedZero",
+          "u8"
+        ],
+        [
+          "sampleSequence",
+          "u16"
+        ],
+        [
+          "ruleId",
+          "text8"
+        ],
+        [
+          "summary",
+          "text8"
+        ]
+      ]
+    },
+    {
+      "id": 514,
+      "name": "DTC_SNAPSHOT",
+      "direction": "device_to_phone",
+      "delivery": "event_indication",
+      "fields": [
+        [
+          "revision",
+          "u32"
+        ],
+        [
+          "mil",
+          "u8"
+        ],
+        [
+          "count",
+          "u8"
+        ],
+        [
+          "records",
+          "dtc_record[count]"
+        ]
+      ],
+      "record": [
+        [
+          "ecuId",
+          "u32"
+        ],
+        [
+          "code",
+          "text8"
+        ],
+        [
+          "provenance",
+          "u8"
+        ],
+        [
+          "status",
+          "u8"
+        ]
+      ],
+      "limits": {
+        "maximumCount": 32
+      },
+      "policy": "only ECU-read codes may use ecu provenance; rule findings remain separate warning events"
+    },
+    {
+      "id": 769,
+      "name": "NAV_STATE",
+      "direction": "phone_to_device",
+      "delivery": "bulk_write_without_response",
+      "fields": [
+        [
+          "routeRevision",
+          "u32"
+        ],
+        [
+          "flags",
+          "u8"
+        ],
+        [
+          "maneuver",
+          "u8"
+        ],
+        [
+          "roundaboutExit",
+          "u8"
+        ],
+        [
+          "reservedZero",
+          "u8"
+        ],
+        [
+          "latitudeE7",
+          "i32"
+        ],
+        [
+          "longitudeE7",
+          "i32"
+        ],
+        [
+          "headingCdeg",
+          "u16"
+        ],
+        [
+          "speedCkph",
+          "u16"
+        ],
+        [
+          "distanceToManeuverM",
+          "u32"
+        ],
+        [
+          "remainingDistanceM",
+          "u32"
+        ],
+        [
+          "remainingTimeS",
+          "u32"
+        ],
+        [
+          "expiresAfterMs",
+          "u16"
+        ]
+      ],
+      "fixedBytes": 34
+    },
+    {
+      "id": 770,
+      "name": "NAV_GEOMETRY_CHUNK",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "routeRevision",
+          "u32"
+        ],
+        [
+          "totalPoints",
+          "u16"
+        ],
+        [
+          "firstPoint",
+          "u16"
+        ],
+        [
+          "count",
+          "u16"
+        ],
+        [
+          "points",
+          "point[count]"
+        ]
+      ],
+      "limits": {
+        "maximumTotalPoints": 512,
+        "maximumChunkPoints": 128
+      }
+    },
+    {
+      "id": 771,
+      "name": "NAV_ROADS",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "routeRevision",
+          "u32"
+        ],
+        [
+          "currentRoad",
+          "text8"
+        ],
+        [
+          "nextRoad",
+          "text8"
+        ]
+      ]
+    },
+    {
+      "id": 772,
+      "name": "NAV_NEARBY_ROADS",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "routeRevision",
+          "u32"
+        ],
+        [
+          "count",
+          "u8"
+        ],
+        [
+          "segments",
+          "segment[count]"
+        ]
+      ],
+      "record": [
+        [
+          "start",
+          "point"
+        ],
+        [
+          "end",
+          "point"
+        ],
+        [
+          "roadClass",
+          "u8"
+        ]
+      ],
+      "limits": {
+        "maximumCount": 64
+      }
+    },
+    {
+      "id": 1025,
+      "name": "TRIP_CHUNK",
+      "direction": "device_to_phone",
+      "delivery": "bulk_notification",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "transferId",
+          "u32"
+        ],
+        [
+          "totalBytes",
+          "u32"
+        ],
+        [
+          "offset",
+          "u32"
+        ],
+        [
+          "data",
+          "bytes16"
+        ]
+      ],
+      "limits": {
+        "maximumChunkBytes": 1024
+      }
+    },
+    {
+      "id": 1281,
+      "name": "SETTINGS_SET",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "keyId",
+          "u16"
+        ],
+        [
+          "valueRaw",
+          "i32"
+        ]
+      ],
+      "policy": "allowlisted local settings only, no ECU commands"
+    },
+    {
+      "id": 1537,
+      "name": "MEDIA_STATE",
+      "direction": "phone_to_device",
+      "delivery": "control_write_response",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "playing",
+          "u8"
+        ],
+        [
+          "elapsedSeconds",
+          "u32"
+        ],
+        [
+          "durationSeconds",
+          "u32"
+        ],
+        [
+          "source",
+          "text8"
+        ],
+        [
+          "title",
+          "text8"
+        ],
+        [
+          "artist",
+          "text8"
+        ]
+      ]
+    },
+    {
+      "id": 1793,
+      "name": "OTA_STATUS",
+      "direction": "device_to_phone",
+      "delivery": "event_indication",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "state",
+          "u8"
+        ],
+        [
+          "progressPermille",
+          "u16"
+        ],
+        [
+          "version",
+          "text8"
+        ],
+        [
+          "detail",
+          "text8"
+        ]
+      ],
+      "policy": "status only; firmware image upload and activation are reserved until signed OTA transport exists"
+    },
+    {
+      "id": 65281,
+      "name": "RESULT",
+      "direction": "both",
+      "delivery": "reliable",
+      "fields": [
+        [
+          "requestId",
+          "u32"
+        ],
+        [
+          "originalMessageId",
+          "u16"
+        ],
+        [
+          "status",
+          "u8"
+        ],
+        [
+          "detail",
+          "text8"
+        ]
+      ]
+    },
+    {
+      "id": 65282,
+      "name": "ERROR",
+      "direction": "both",
+      "delivery": "reliable",
+      "fields": [
+        [
+          "originalMessageId",
+          "u16"
+        ],
+        [
+          "originalSequence",
+          "u16"
+        ],
+        [
+          "status",
+          "u8"
+        ],
+        [
+          "detail",
+          "text8"
+        ]
+      ]
+    }
+  ],
+  "enums": {
+    "resultStatus": {
+      "0": "ok",
+      "1": "unsupported",
+      "2": "invalid",
+      "3": "unauthorized",
+      "4": "busy",
+      "5": "timeout",
+      "6": "incompatible_version",
+      "7": "needs_stationary"
+    },
+    "connectionState": {
+      "0": "disconnected",
+      "1": "connecting",
+      "2": "connected",
+      "3": "fault"
+    },
+    "ignition": {
+      "0": "unknown",
+      "1": "off",
+      "2": "acc",
+      "3": "on",
+      "4": "start"
+    },
+    "verification": {
+      "0": "unverified",
+      "1": "bench_verified",
+      "2": "vehicle_verified"
+    },
+    "physicalInterface": {
+      "0": "none",
+      "1": "can",
+      "2": "kline"
+    },
+    "severity": {
+      "0": "info",
+      "1": "advisory",
+      "2": "warning",
+      "3": "critical"
+    },
+    "dtcProvenance": {
+      "0": "ecu",
+      "1": "simulated"
+    },
+    "dtcStatus": {
+      "0": "stored",
+      "1": "pending",
+      "2": "permanent"
+    },
+    "maneuver": {
+      "0": "none",
+      "1": "straight",
+      "2": "left",
+      "3": "right",
+      "4": "slight_left",
+      "5": "slight_right",
+      "6": "u_turn",
+      "7": "roundabout",
+      "8": "destination"
+    },
+    "otaState": {
+      "0": "idle",
+      "1": "checking",
+      "2": "receiving",
+      "3": "verifying",
+      "4": "restarting",
+      "5": "confirmed",
+      "6": "rolled_back",
+      "7": "failed"
+    }
+  },
+  "featureBits": {
+    "0": "fast_telemetry",
+    "1": "vehicle_status",
+    "2": "diagnostics",
+    "3": "navigation",
+    "4": "trip_transfer",
+    "5": "settings",
+    "6": "media_metadata",
+    "7": "ota_status"
+  },
+  "navFlagBits": {
+    "0": "navigationActive",
+    "1": "positionValid",
+    "2": "headingValid",
+    "3": "rerouting",
+    "4": "destinationReached",
+    "5": "muted",
+    "6": "northUp"
+  },
+  "settingsKeys": [
+    {
+      "id": 1,
+      "name": "brightness",
+      "min": 20,
+      "max": 100,
+      "scale": 1
+    },
+    {
+      "id": 2,
+      "name": "nightMode",
+      "min": 0,
+      "max": 1,
+      "scale": 1
+    },
+    {
+      "id": 3,
+      "name": "navigationMuted",
+      "min": 0,
+      "max": 1,
+      "scale": 1
+    }
+  ],
+  "safety": {
+    "rawEcuPassthrough": false,
+    "ecuWriting": false,
+    "actuatorCommands": false,
+    "service04": false,
+    "authenticatedEncryptedBondRequired": true,
+    "physicalEnrollmentConfirmation": true
+  },
+  "requiredVectors": [
+    "crc_check",
+    "hello",
+    "telemetry_measured_zero",
+    "telemetry_invalid_null",
+    "telemetry_negative_temperature",
+    "minimum_mtu_fragments",
+    "sequence_rollover",
+    "old_session",
+    "bad_length",
+    "bad_crc"
+  ]
+}

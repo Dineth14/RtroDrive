@@ -1,0 +1,53 @@
+category,unit_quantity,supplier,checked_date,currency,unit_cost,extended_cost,status
+display/controller,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+display/controller,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+display/controller,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+display/controller,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+vehicle PCB components,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+vehicle PCB components,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+vehicle PCB components,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+vehicle PCB components,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+connectors,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+connectors,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+connectors,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+connectors,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+harness,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+harness,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+harness,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+harness,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+GNSS,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+GNSS,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+GNSS,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+GNSS,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+IMU,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+IMU,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+IMU,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+IMU,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+speaker/audio,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+speaker/audio,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+speaker/audio,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+speaker/audio,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+enclosure,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+enclosure,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+enclosure,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+enclosure,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+PCB fabrication,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+PCB fabrication,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+PCB fabrication,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+PCB fabrication,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+assembly,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+assembly,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+assembly,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+assembly,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+packaging,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+packaging,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+packaging,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+packaging,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+test,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+test,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+test,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+test,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required
+manufacturing loss allowance,1,TBD,2026-09-20,TBD,TBD,TBD,quote required
+manufacturing loss allowance,10,TBD,2026-09-20,TBD,TBD,TBD,quote required
+manufacturing loss allowance,100,TBD,2026-09-20,TBD,TBD,TBD,quote required
+manufacturing loss allowance,1000,TBD,2026-09-20,TBD,TBD,TBD,quote required

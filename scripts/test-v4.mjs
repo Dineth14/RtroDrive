@@ -13,7 +13,7 @@ globalThis.__bootTimers=timers
 // Server rendering normally uses Zustand's initial snapshot. This harness renders
 // the current simulated store without subscribing, so profile variants are tested.
 React.useSyncExternalStore=(_subscribe,getSnapshot)=>getSnapshot()
-const result=await build({entryPoints:['tests/v4.test.tsx'],bundle:true,write:false,platform:'node',format:'cjs',packages:'external',loader:{'.css':'empty'},tsconfig:'tsconfig.app.json'})
+const result=await build({entryPoints:['apps/simulator-web/tests/v4.test.tsx'],bundle:true,write:false,platform:'node',format:'cjs',packages:'external',loader:{'.css':'empty'},tsconfig:'apps/simulator-web/tsconfig.app.json'})
 const filename=resolve('tests/v4.compiled.cjs')
 const testModule=new Module(filename)
 testModule.filename=filename

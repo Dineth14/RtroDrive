@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "profile_id": "mini_mems2j",
+  "profile_version": "0.1.0",
+  "manufacturer": "Rover",
+  "model": "Mini MPi",
+  "generation": "Mini",
+  "year_range": [
+    1998,
+    1998
+  ],
+  "engine": "MEMS 2J target; ECU identity to verify",
+  "transmission_variants": [],
+  "verification_status": "unverified",
+  "physical_interface": "kline",
+  "vehicle_connector": null,
+  "diagnostic_pins": {},
+  "protocol": "mems2j_research",
+  "initialization": {
+    "enabled": false,
+    "method": "reference_fast_init_only",
+    "baud": 10400,
+    "source": "https://rovermems.com/mems-2j/index.html"
+  },
+  "supported_parameters": [],
+  "warning_configuration": {
+    "status": "needs_vehicle_specific_review"
+  },
+  "dashboard_capabilities": [],
+  "display_theme": "classic_analogue",
+  "media_theme": "heritage_radio",
+  "boot_theme": "retrodrive_original",
+  "evidence": [
+    "docs/reference/production-brief.txt"
+  ]
+}

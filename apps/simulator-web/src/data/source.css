@@ -1,0 +1,15 @@
+.rd-source-live { width: 1024px; height: 600px; box-sizing: border-box; background: #080e0d; color: #a9d3aa; padding: 30px; font-family: monospace; overflow: auto; }
+.rd-source-live header { display: flex; justify-content: space-between; border-bottom: 1px solid #477550; padding-bottom: 16px; letter-spacing: 3px; font-size: 22px; }
+.rd-source-live p, .rd-source-live footer { color: #85a98b; letter-spacing: 1px; }
+.rd-source-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.rd-source-grid article { border: 1px solid #304c37; background: #101c15; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.rd-source-grid strong { font-size: 32px; font-weight: 500; color: #d1f6c2; }
+.rd-source-grid small { font-size: 13px; }
+.rd-source-grid span { font-size: 10px; color: #8baf92; }
+.rd-source-empty { padding: 90px 0; text-align: center; }
+.rd-source-live footer { margin-top: 25px; font-size: 11px; }
+.rd-source-live.compact { width: 390px; height: 760px; border: 10px solid #202421; border-radius: 26px; padding: 20px; }
+.rd-source-live.compact header { font-size: 13px; }
+.rd-source-live.compact .rd-source-grid { grid-template-columns: repeat(2, 1fr); }
+.rd-source-live.compact strong { font-size: 24px; }
+.rd-source-file { color: #a9d3aa; font-size: 11px; max-width: 180px; }

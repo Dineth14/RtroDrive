@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "profile_id": "altezza_gxe10",
+  "profile_version": "0.1.0",
+  "manufacturer": "Toyota",
+  "model": "Altezza AS200",
+  "generation": "GXE10",
+  "year_range": null,
+  "engine": "1G-FE",
+  "transmission_variants": [
+    "needs_variant_confirmation"
+  ],
+  "verification_status": "unverified",
+  "physical_interface": "unresolved",
+  "vehicle_connector": null,
+  "diagnostic_pins": {},
+  "protocol": "unresolved",
+  "initialization": {
+    "enabled": false,
+    "reason": "No qualified vehicle capture"
+  },
+  "supported_parameters": [],
+  "warning_configuration": {
+    "status": "needs_vehicle_specific_review"
+  },
+  "dashboard_capabilities": [],
+  "display_theme": "90s_performance",
+  "media_theme": "eq_deck_89",
+  "boot_theme": "retrodrive_original",
+  "evidence": [
+    "docs/reference/production-brief.txt"
+  ]
+}

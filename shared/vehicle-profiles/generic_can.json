@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "profile_id": "generic_can",
+  "profile_version": "0.1.0",
+  "manufacturer": "Generic",
+  "model": "CAN OBD-II",
+  "generation": null,
+  "year_range": null,
+  "engine": null,
+  "transmission_variants": [],
+  "verification_status": "unverified",
+  "physical_interface": "can",
+  "vehicle_connector": "J1962",
+  "diagnostic_pins": {
+    "can_h": 6,
+    "can_l": 14,
+    "signal_ground": 5,
+    "chassis_ground": 4,
+    "battery": 16
+  },
+  "protocol": "iso15765_4",
+  "initialization": {
+    "enabled": false,
+    "candidates": [
+      {
+        "bitrate": 500000,
+        "id_bits": 11
+      },
+      {
+        "bitrate": 500000,
+        "id_bits": 29
+      },
+      {
+        "bitrate": 250000,
+        "id_bits": 11
+      },
+      {
+        "bitrate": 250000,
+        "id_bits": 29
+      }
+    ],
+    "policy": "bench qualification required; PID00 capability discovery"
+  },
+  "supported_parameters": [
+    {
+      "name": "rpm",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID0C; response41 0C; only after ECU support bitmap",
+      "conversion": "(256*A+B)/4",
+      "units": "rpm",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "speedKph",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID0D; response41 0D; only after ECU support bitmap",
+      "conversion": "A",
+      "units": "km/h",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "coolantC",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID05; response41 05; only after ECU support bitmap",
+      "conversion": "A-40",
+      "units": "degC",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "intakeAirC",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID0F; response41 0F; only after ECU support bitmap",
+      "conversion": "A-40",
+      "units": "degC",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "throttlePct",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID11; response41 11; only after ECU support bitmap",
+      "conversion": "100*A/255",
+      "units": "%",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "engineLoadPct",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID04; response41 04; only after ECU support bitmap",
+      "conversion": "100*A/255",
+      "units": "%",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "mapKpa",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID0B; response41 0B; only after ECU support bitmap",
+      "conversion": "A",
+      "units": "kPa",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "mafGps",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID10; response41 10; only after ECU support bitmap",
+      "conversion": "(256*A+B)/100",
+      "units": "g/s",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "fuelLevelPct",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID2F; response41 2F; only after ECU support bitmap",
+      "conversion": "100*A/255",
+      "units": "%",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    },
+    {
+      "name": "batteryVoltage",
+      "standard": true,
+      "source": "https://python-obd.readthedocs.io/en/latest/Command%20Tables/",
+      "verification_status": "unverified",
+      "raw_message": "Service01 PID42; response41 42; only after ECU support bitmap",
+      "conversion": "(256*A+B)/1000",
+      "units": "V",
+      "observed_range": null,
+      "last_verified_vehicle": null
+    }
+  ],
+  "warning_configuration": {
+    "status": "needs_vehicle_specific_review"
+  },
+  "dashboard_capabilities": [
+    "discovered_parameters_only"
+  ],
+  "display_theme": "90s_performance",
+  "media_theme": "eq_deck_89",
+  "boot_theme": "retrodrive_original",
+  "evidence": [
+    "docs/reference/production-brief.txt"
+  ]
+}

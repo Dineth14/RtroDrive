@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "profile_id": "mitsubishi_mut",
+  "profile_version": "0.1.0",
+  "manufacturer": "Mitsubishi",
+  "model": "Target vehicle TBD",
+  "generation": null,
+  "year_range": null,
+  "engine": null,
+  "transmission_variants": [],
+  "verification_status": "unverified",
+  "physical_interface": "unresolved",
+  "vehicle_connector": null,
+  "diagnostic_pins": {},
+  "protocol": "mut_future",
+  "initialization": {
+    "enabled": false,
+    "reason": "No qualified vehicle capture"
+  },
+  "supported_parameters": [],
+  "warning_configuration": {
+    "status": "needs_vehicle_specific_review"
+  },
+  "dashboard_capabilities": [],
+  "display_theme": "90s_performance",
+  "media_theme": "eq_deck_89",
+  "boot_theme": "retrodrive_original",
+  "evidence": [
+    "docs/reference/production-brief.txt"
+  ]
+}

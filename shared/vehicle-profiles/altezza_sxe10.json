@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "profile_id": "altezza_sxe10",
+  "profile_version": "0.1.0",
+  "manufacturer": "Toyota",
+  "model": "Altezza RS200",
+  "generation": "SXE10",
+  "year_range": null,
+  "engine": "3S-GE",
+  "transmission_variants": [
+    "manual",
+    "automatic"
+  ],
+  "verification_status": "unverified",
+  "physical_interface": "unresolved",
+  "vehicle_connector": null,
+  "diagnostic_pins": {},
+  "protocol": "unresolved",
+  "initialization": {
+    "enabled": false,
+    "reason": "No qualified vehicle capture"
+  },
+  "supported_parameters": [],
+  "warning_configuration": {
+    "status": "needs_vehicle_specific_review"
+  },
+  "dashboard_capabilities": [],
+  "display_theme": "90s_performance",
+  "media_theme": "eq_deck_89",
+  "boot_theme": "retrodrive_original",
+  "evidence": [
+    "docs/reference/production-brief.txt"
+  ]
+}
