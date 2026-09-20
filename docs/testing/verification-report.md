@@ -9,7 +9,9 @@ Date: 2026-09-20. Scope: repository/software foundation after the audit. This is
 | Web production build | PASS: Vite builds relocated application |
 | Node contract/bridge/BLE tests | PASS: nine test cases including loopback handshake/origin restrictions, zero/null, malformed metadata, sequence wrap, CRC, minimum-MTU reassembly and stale session rejection |
 | Source adapter tests | PASS: recording validation/order/session, replay cancellation, stale-channel hiding and measured zero rendering |
-| C++ host protocol tests | PASS: MinGW GCC6.3.0, C++14, Wall/Wextra/Werror/pedantic; OBD conversion/capability/polling, CAN addressing, ISO-TP sequence/capacity/timeout, VIN/DTC and Mini init/echo/timeout vectors |
+| C++ host protocol tests | PASS: MinGW GCC6.3.0, C++14, Wall/Wextra/Werror/pedantic; OBD conversion/capability/polling, CAN addressing, ISO-TP, VIN/DTC, Mini initialization and discovery/fingerprint/fallback/ECU-isolation/VIN-timeout vectors |
+| Relocated dev-server HTTP smoke | PASS: entry page, application and source modules served by a freshly started Vite process |
+| Local documentation links | PASS: Markdown file targets exist |
 | Python ECU simulator | PASS: Python3.11.9, six tests; synthetic OBD responses/bitmaps/segmentation and physical-interface refusal |
 | JSON Schema | PASS: Draft2020-12 schema validation with installed jsonschema4.26.0; telemetry fixture and nine profile files valid. CI pins4.25.1 separately |
 | Browser visual/touch/audio QA | NOT RUN: browser runtime discovered no available browser |
@@ -23,7 +25,7 @@ Date: 2026-09-20. Scope: repository/software foundation after the audit. This is
 
 The existing UI is retained under `apps/simulator-web`; mock uses the original engine behind a source interface. Canonical replay/bridge data uses a separate capability view because older layouts still assume complete simulated data. It hides unavailable/stale values and never exposes mock connection/actuator controls on external sources. Full sparse-data adaptation of every historical layout is still open.
 
-The portable firmware core is real compiled code; it does not implement an ESP32 hardware driver or end-to-end VehicleLinkManager. MEMS2J startup is a reference-based research state machine disabled by default. ECU identification, live data and fault commands remain unqualified and absent. BLE codecs are tested but are not a paired device transport. Flutter shows a static simulated fixture/catalog only; its parser must be completed against the full untrusted-wire schema before real transport integration.
+The portable firmware core includes a host-tested VehicleLinkManager that requires adapter bus qualification, validates cached links, searches four candidates, isolates the selected responder, chains capabilities and tolerates absent VIN. It has no ESP32 hardware adapter or persisted fingerprint storage; it does not identify an exact vehicle. MEMS2J startup is a reference-based research state machine disabled by default. Mini ECU identification, live data and fault commands remain unqualified and absent. BLE codecs are tested but are not a paired device transport. Flutter shows a static simulated fixture/catalog only; its parser must be completed against the full untrusted-wire schema before real transport integration.
 
 Hardware documentation is an architecture proposal. Companion MCU selection, exact purchased display revision, actual load/inrush, FET/TVS/regulator/passive values, connector footprints, stackup and mechanical dimensions remain unresolved. The BOM is not costed or assembly-complete. Manufacturing workflow intentionally rejects release; no passing ERC/DRC or fabrication assets are claimed.
 

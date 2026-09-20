@@ -6,7 +6,7 @@ Audit date: 2026-09-20. This records the repository **before the production-inte
 
 RetroDrive is a functional browser HMI prototype built with React 18, TypeScript, Vite, Zustand, Lucide and Recharts. `src/main.tsx` mounts `src/app/App.tsx`. Its fixed 1024 x 600 cluster, simulated phone and development controls share four in-memory stores. This is substantial reusable visual work, not an empty scaffold. None of its connection indicators prove actual hardware communication.
 
-The baseline root contains `src/`, `tests/`, `scripts/`, `docs/HMI-V4.md`, Vite/TypeScript configuration, `public/`, package files and generated directories. The audit found 9,083 tracked paths, including `node_modules/` and `dist/`, and no `.gitignore`. Generated dependency/build content must leave the Git index while local installed dependencies can remain available for development.
+The baseline root contains `src/`, `tests/`, `scripts/`, `docs/HMI-V4.md`, Vite/TypeScript configuration, package files and generated directories. The audit found 9,083 tracked paths, including `node_modules/` and `dist/`, and no `.gitignore`. Generated dependency/build content must leave the Git index while local installed dependencies can remain available for development.
 
 ## Baseline execution evidence
 

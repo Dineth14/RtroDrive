@@ -12,4 +12,6 @@ idf.py build
 
 From the repository root, `npm run test:firmware` compiles independent C++14 tests with `g++`. Override the compiler via `CXX` if necessary. Implemented: standard PID conversion, chained capability bitmaps, bounded receive-side ISO-TP, VIN/DTC decoders, supported-only scheduler and gated MEMS2J research initialization. The caller must serialize requests per ECU and apply a global budget including discovery and flow control; the scheduler alone is not a measured bus-load controller.
 
-Missing target integrations: TWAI driver/discovery loop/fingerprint persistence, LVGL, GNSS/IMU, SD, BLE, warning audio, ACC control and signed OTA. See architecture and roadmap. Do not attach an unqualified board/harness to a vehicle based on host test success.
+`VehicleLinkManager` is a host-tested coordinator for cached-link validation, four CAN candidates, per-responder capability discovery and nonfatal VIN failure. Every candidate requires explicit adapter qualification before a read request. It selects the first validated responder, never merges another ECU's capabilities, and cannot confirm an exact model from generic evidence.
+
+Missing target integrations: TWAI driver/passive qualification/global bus-time accounting/fingerprint persistence, LVGL, GNSS/IMU, SD, BLE, warning audio, ACC control and signed OTA. See architecture and roadmap. Do not attach an unqualified board/harness to a vehicle based on host test success.
