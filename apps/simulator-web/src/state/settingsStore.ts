@@ -101,11 +101,13 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'retrodrive-settings',
-      version: 4,
+      version: 5,
       migrate: (persisted) => {
         const p = (persisted ?? {}) as Partial<SettingsState>
         return {
-          vehicleProfile: p.vehicleProfile ?? defaultVehicle,
+          vehicleProfile: p.vehicleProfile?.id === 'minimpi' && p.vehicleProfile.engine === '1.3i SPi'
+            ? { ...p.vehicleProfile, year: 1998, engine: '1.3i MPi' }
+            : p.vehicleProfile ?? defaultVehicle,
           display: { ...defaultDisplay, ...(p.display ?? {}) },
           sound: { ...defaultSound, ...(p.sound ?? {}) },
           warnings: { ...defaultWarnings, ...(p.warnings ?? {}) },

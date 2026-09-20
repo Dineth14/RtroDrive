@@ -1,0 +1,19 @@
+name: hardware-release-gate
+on:
+  push:
+    tags: ['hardware-v*']
+permissions:
+  contents: read
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+      - run: node tools/manufacturing/check-release.mjs
+      - name: Hardware artifact exporter not yet qualified
+        run: |
+          echo 'Manufacturing generation requires reviewed KiCad sources, pinned tooling, ERC/DRC and output QA. No release exporter has been qualified.'
+          exit 1

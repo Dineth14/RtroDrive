@@ -311,7 +311,7 @@ export function startTelemetryEngine() {
     secondAccumulator += dt
     if (secondAccumulator >= 1) {
       secondAccumulator = 0
-      import('./faultEngine').then((m) => m.evaluateFaultsAndHealth())
+      import('./faultEngine').then((m) => { if (intervalHandle !== null) m.evaluateFaultsAndHealth() })
     }
   }, 80)
 }

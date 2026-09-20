@@ -1,6 +1,6 @@
 # RetroDrive BLE1.0 draft
 
-Status: specified, not implemented or hardware verified. Canonical machine definition: [ble-v1.json](../../shared/protocol/ble-v1.json). [Architecture/security](../architecture/mobile-and-ble.md).
+Status: binary envelope/fast telemetry/fragmentation codec implemented and host-tested; no GATT/device link or hardware verification. Canonical machine definition: [ble-v1.json](../../shared/protocol/ble-v1.json), [codec](../../shared/protocol/ble-codec.mjs). [Architecture/security](../architecture/mobile-and-ble.md).
 
 Little-endian logical envelope: major:u8 at0, flags:u8 at1, messageId:u16 at2, payloadLength:u16 at4, sequence:u16 at6, sessionId:u32 at8, uptimeMs:u32 at12, payload at16, CRC16 at16+payloadLength. Reserved flags must be zero. Payload is at most4096 bytes. CRC-16/CCITT-FALSE covers header+payload, polynomial0x1021, initial0xFFFF, no reflection/xor-out; ASCII123456789 gives0x29B1, wire bytesB1 29. CRC detects reassembly/bridge corruption; bonding/encryption provide authentication independently.
 

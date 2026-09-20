@@ -52,7 +52,9 @@ bool SupportedPids::consume(const Bytes& p) {
   const auto index = p[1] / 32;
   if (index > 0 && (!known_[index - 1] || !(maps_[index - 1] & 1))) return false;
   maps_[index] = (uint32_t(p[2]) << 24) | (uint32_t(p[3]) << 16) | (uint32_t(p[4]) << 8) | p[5];
-  known_[index] = true; return true;
+  known_[index] = true;
+  for (std::size_t i = index + 1; i < known_.size(); ++i) { known_[i] = false; maps_[i] = 0; }
+  return true;
 }
 bool SupportedPids::supports(uint8_t pid) const {
   if (pid == 0) return false;
