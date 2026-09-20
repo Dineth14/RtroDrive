@@ -1,0 +1,1 @@
+Mini state-machine vectors run in `firmware/test/protocol_test.cpp` through `npm run test:firmware`. This path is reserved for anonymized actual ECU traces after consent and source verification. No invented vehicle recording is provided.
